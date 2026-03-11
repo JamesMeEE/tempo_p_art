@@ -106,7 +106,7 @@ async function loadAccounting() {
         if (row[12] === 'COMPLETED') {
           tradein.txCount++; tradein.moneyNoP += parseFloat(row[6]) || 0;
           try { JSON.parse(row[2]).forEach(function(item) { tradein.oldGoldG += getGoldWeight(item.productId) * item.qty; }); JSON.parse(row[3]).forEach(function(item) { tradein.newGoldG += getGoldWeight(item.productId) * item.qty; }); } catch(e) {}
-        } else if (row[12] !== 'REJECTED') { var m = (parseFloat(row[4]) || 0) + (parseFloat(row[5]) || 0) + (parseFloat(row[6]) || 0); var g = calcGold(row[3]); incomplete.money += m; incomplete.gold += g; incTradein.money += m; incTradein.gold += g; incTradein.count++; }
+        } else if (row[12] !== 'REJECTED') { var m = parseFloat(row[6]) || 0; var g = calcGold(row[3]); incomplete.money += m; incomplete.gold += g; incTradein.money += m; incTradein.gold += g; incTradein.count++; }
       }
     });
 
