@@ -230,6 +230,7 @@ async function calculateTradein() {
       difference,
       premium,
       total,
+      sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname
     });
     

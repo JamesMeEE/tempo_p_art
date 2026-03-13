@@ -151,6 +151,7 @@ async function calculateWithdraw() {
       items: JSON.stringify(mergeItems(products)),
       premium,
       total,
+      sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname,
       withdrawCode: withdrawCode
     });

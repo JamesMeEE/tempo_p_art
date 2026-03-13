@@ -171,6 +171,7 @@ async function calculateBuyback() {
       products: JSON.stringify(mergeItems(products)),
       price,
       fee,
+      sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname
     });
     

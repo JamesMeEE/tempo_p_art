@@ -12,6 +12,7 @@ var ALL_RANGES = [
   'Diff!A:J',
   'Close!A:K',
   'PriceRate!A:E',
+  'Pricing!A:E',
   '_notifications!A:I'
 ];
 
@@ -98,4 +99,17 @@ async function fetchExchangeRates() {
     console.error('Error fetching exchange rates:', e);
   }
   return currentExchangeRates;
+}
+
+async function fetchCurrentPricing() {
+  try {
+    var data = await fetchSheetData('Pricing!A:E');
+    if (data && data.length > 1) {
+      var last = data[data.length - 1];
+      var p = function(v) { return parseFloat(String(v).replace(/,/g, '')) || 0; };
+      currentPricing.sell1Baht = p(last[1]);
+      currentPricing.buyback1Baht = p(last[2]);
+    }
+  } catch(e) {}
+  return currentPricing;
 }

@@ -312,6 +312,7 @@ async function calculateExchangeNew() {
       freeExBillId: freeExBillId,
       freeExPremiumDeduct: freeExPremiumDeduct,
       freeExBillSheet: _exFreeExBillData ? _exFreeExBillData.sheet : '',
+      sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname
     });
     if (result.success) {

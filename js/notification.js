@@ -246,6 +246,8 @@ async function refreshPage() {
   try {
     _sheetCache = {};
     await batchFetchAll();
+    await fetchExchangeRates();
+    await fetchCurrentPricing();
     await showSection(tabName);
     await pollAll();
   } catch(e) {}
