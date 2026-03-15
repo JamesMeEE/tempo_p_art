@@ -321,7 +321,7 @@ function calculateSellPrice(productId, sell1Baht) {
     case 'G04': price = sell1Baht; break;
     case 'G05': price = (sell1Baht / 2); break;
     case 'G06': price = (sell1Baht / 4); break;
-    case 'G07': price = (sell1Baht / 15) + 120000; break;
+    case 'G07': return Math.ceil(((sell1Baht / 15) + 120000) / 1000) * 1000;
   }
   return Math.round(price / 1000) * 1000;
 }
