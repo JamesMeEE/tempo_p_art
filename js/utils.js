@@ -634,14 +634,60 @@ async function loadDeletedList() {
       return;
     }
     tbody.innerHTML = rows.map(function(r) {
-      var dataStr = String(r[5] || '');
-      if (dataStr.length > 100) dataStr = dataStr.substring(0, 100) + '...';
+      var type = String(r[3] || '');
+      var rawData = [];
+      try { rawData = JSON.parse(r[5]); } catch(e) {}
+      var detail = '';
+      if (type === 'SELL' && rawData.length > 0) {
+        detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
+          '<br><b>Items:</b> ' + formatItemsForTable(rawData[2]) +
+          '<br><b>Total:</b> ' + formatNumber(rawData[3]) + ' LAK' +
+          '<br><b>Status:</b> ' + (rawData[10] || '-') +
+          '<br><b>Sale:</b> ' + (rawData[11] || '-');
+      } else if (type === 'TRADEIN' && rawData.length > 0) {
+        detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
+          '<br><b>Old Gold:</b> ' + formatItemsForTable(rawData[2]) +
+          '<br><b>New Gold:</b> ' + formatItemsForTable(rawData[3]) +
+          '<br><b>Diff:</b> ' + formatNumber(rawData[4]) + ' | <b>Premium:</b> ' + formatNumber(rawData[5]) +
+          '<br><b>Total:</b> ' + formatNumber(rawData[6]) + ' LAK' +
+          '<br><b>Status:</b> ' + (rawData[12] || '-') +
+          '<br><b>Sale:</b> ' + (rawData[13] || '-');
+      } else if (type === 'EXCHANGE' && rawData.length > 0) {
+        detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
+          '<br><b>Old Gold:</b> ' + formatItemsForTable(rawData[2]) +
+          '<br><b>New Gold:</b> ' + formatItemsForTable(rawData[3]) +
+          '<br><b>Ex Fee:</b> ' + formatNumber(rawData[4]) + ' | <b>Premium:</b> ' + formatNumber(rawData[5]) +
+          '<br><b>Total:</b> ' + formatNumber(rawData[6]) + ' LAK' +
+          '<br><b>Status:</b> ' + (rawData[12] || '-') +
+          '<br><b>Sale:</b> ' + (rawData[13] || '-');
+      } else if (type === 'BUYBACK' && rawData.length > 0) {
+        detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
+          '<br><b>Items:</b> ' + formatItemsForTable(rawData[2]) +
+          '<br><b>Price:</b> ' + formatNumber(rawData[3]) + ' | <b>Fee:</b> ' + formatNumber(rawData[5]) +
+          '<br><b>Total:</b> ' + formatNumber(rawData[6]) + ' LAK' +
+          '<br><b>Paid:</b> ' + formatNumber(rawData[7]) + ' | <b>Balance:</b> ' + formatNumber(rawData[8]) +
+          '<br><b>Status:</b> ' + (rawData[10] || '-') +
+          '<br><b>Sale:</b> ' + (rawData[11] || '-');
+      } else if (type === 'WITHDRAW' && rawData.length > 0) {
+        detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
+          '<br><b>Items:</b> ' + formatItemsForTable(rawData[2]) +
+          '<br><b>Premium:</b> ' + formatNumber(rawData[3]) +
+          '<br><b>Total:</b> ' + formatNumber(rawData[4]) + ' LAK' +
+          '<br><b>Status:</b> ' + (rawData[7] || '-') +
+          '<br><b>Sale:</b> ' + (rawData[8] || '-');
+      } else {
+        var dataStr = String(r[5] || '');
+        if (dataStr.length > 100) dataStr = dataStr.substring(0, 100) + '...';
+        detail = dataStr;
+      }
+      var typeColors = { 'SELL': '#4caf50', 'TRADEIN': '#2196f3', 'EXCHANGE': '#ff9800', 'BUYBACK': '#9c27b0', 'WITHDRAW': '#f44336' };
+      var tColor = typeColors[type] || '#888';
       return '<tr>' +
         '<td style="font-size:11px;white-space:nowrap;">' + (r[0] || '') + '</td>' +
-        '<td>' + (r[2] || '') + '</td>' +
-        '<td>' + (r[3] || '') + '</td>' +
+        '<td style="font-weight:bold;">' + (r[2] || '') + '</td>' +
+        '<td><span style="background:' + tColor + ';color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">' + type + '</span></td>' +
         '<td>' + (r[4] || '') + '</td>' +
-        '<td style="font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;">' + dataStr + '</td>' +
+        '<td style="font-size:12px;line-height:1.6;">' + detail + '</td>' +
         '<td>' + (r[6] || '') + '</td>' +
         '</tr>';
     }).join('');
