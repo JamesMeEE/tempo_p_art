@@ -617,3 +617,33 @@ function printBill(encodedData, type) {
   printWin.document.close();
   setTimeout(function() { printWin.print(); }, 300);
 }
+
+async function loadDeletedList() {
+  try {
+    var tbody = document.getElementById('deletedListTable');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;"><div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div></td></tr>';
+    var data = await fetchSheetData('_log!A:G');
+    if (!data || data.length <= 1) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No deleted records</td></tr>';
+      return;
+    }
+    var rows = data.slice(1).filter(function(r) { return String(r[1] || '').toUpperCase() === 'DELETE'; });
+    rows.sort(function(a, b) { return new Date(b[0]) - new Date(a[0]); });
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No deleted records</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function(r) {
+      var dataStr = String(r[5] || '');
+      if (dataStr.length > 100) dataStr = dataStr.substring(0, 100) + '...';
+      return '<tr>' +
+        '<td style="font-size:11px;white-space:nowrap;">' + (r[0] || '') + '</td>' +
+        '<td>' + (r[2] || '') + '</td>' +
+        '<td>' + (r[3] || '') + '</td>' +
+        '<td>' + (r[4] || '') + '</td>' +
+        '<td style="font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;">' + dataStr + '</td>' +
+        '<td>' + (r[6] || '') + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) {}
+}
