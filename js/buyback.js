@@ -72,6 +72,7 @@ async function loadBuybacks() {
         
         return '<tr>' +
             '<td>' + row[0] + '</td>' +
+            '<td style="font-size:11px;white-space:nowrap;">' + (row[cDate] || '') + '</td>' +
             '<td>' + row[1] + '</td>' +
             '<td>' + items + '</td>' +
             '<td>' + formatNumber(price) + '</td>' +

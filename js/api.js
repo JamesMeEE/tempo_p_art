@@ -13,7 +13,8 @@ var ALL_RANGES = [
   'Close!A:K',
   'PriceRate!A:E',
   'Pricing!A:E',
-  '_notifications!A:I'
+  '_notifications!A:I',
+  '_log!A:G'
 ];
 
 async function batchFetchAll() {

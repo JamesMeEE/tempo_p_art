@@ -52,6 +52,17 @@ function setupManagerUI() {
         btn.style.display = 'none';
       }
     });
+
+    var managerHideTabs = ["'accounting'", "'diff'", "'reports'", "'wac'"];
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
+      var oc = (btn.getAttribute('onclick') || '') + '';
+      for (var i = 0; i < managerHideTabs.length; i++) {
+        if (oc.indexOf(managerHideTabs[i]) !== -1) {
+          btn.style.display = 'none';
+          break;
+        }
+      }
+    });
   }
 }
 
@@ -114,6 +125,8 @@ function applyRoleUI() {
   if (currentUser.role === 'Admin') {
     var navUS = document.getElementById('navUserSetting');
     if (navUS) navUS.style.display = '';
+    var navDL = document.getElementById('navDeletedList');
+    if (navDL) navDL.style.display = '';
   }
 
   if (currentUser.role === 'Accountant') {
