@@ -218,6 +218,20 @@ async function viewBillDetail(id, type) {
 
     var txData = results.length > 2 ? results[2] : [];
     var row = txData.length > 1 ? txData.slice(1).find(function(r) { return r[0] === id; }) : null;
+    
+    var stockNote = '';
+    try {
+      var stockData = await fetchSheetData('Stock!A:H');
+      if (stockData && stockData.length > 1) {
+        for (var sn = stockData.length - 1; sn >= 1; sn--) {
+          if (String(stockData[sn][3] || '') === id) {
+            stockNote = String(stockData[sn][5] || '');
+            break;
+          }
+        }
+      }
+    } catch(e) {}
+    
     hideLoading();
 
     var fmtItems = function(json) {
@@ -283,6 +297,13 @@ async function viewBillDetail(id, type) {
         html += '<div><span style="color:var(--text-secondary);font-size:11px;">WAC/บาท</span><br><span style="font-weight:bold;">' + formatNumber(wB) + ' LAK</span></div>';
         html += '</div></div>';
       }
+    }
+
+    if (stockNote) {
+      html += '<div style="margin-top:15px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid var(--border-color);">';
+      html += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">📝 Note</div>';
+      html += '<div style="font-size:13px;">' + stockNote + '</div>';
+      html += '</div>';
     }
 
     showBillModal(id, type, html);
