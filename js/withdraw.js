@@ -228,16 +228,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fromInput && toInput) {
     fromInput.addEventListener('change', function() {
       withdrawDateFrom = this.value;
-      if (withdrawDateFrom && withdrawDateTo) {
-        loadWithdraws();
-      }
+      if (withdrawDateFrom && !withdrawDateTo) { withdrawDateTo = withdrawDateFrom; toInput.value = withdrawDateTo; }
+      if (withdrawDateFrom && withdrawDateTo) loadWithdraws();
     });
     
     toInput.addEventListener('change', function() {
       withdrawDateTo = this.value;
-      if (withdrawDateFrom && withdrawDateTo) {
-        loadWithdraws();
-      }
+      if (withdrawDateTo && !withdrawDateFrom) { withdrawDateFrom = withdrawDateTo; fromInput.value = withdrawDateFrom; }
+      if (withdrawDateFrom && withdrawDateTo) loadWithdraws();
     });
   }
 });
