@@ -732,6 +732,8 @@ async function loadDeletedList() {
 function filterDeletedList() {
   _deletedDateFrom = document.getElementById('deletedDateFrom').value;
   _deletedDateTo = document.getElementById('deletedDateTo').value;
+  if (_deletedDateFrom && !_deletedDateTo) { _deletedDateTo = _deletedDateFrom; document.getElementById('deletedDateTo').value = _deletedDateTo; }
+  if (!_deletedDateFrom && _deletedDateTo) { _deletedDateFrom = _deletedDateTo; document.getElementById('deletedDateFrom').value = _deletedDateFrom; }
   if (_deletedDateFrom && _deletedDateTo) loadDeletedList();
 }
 
