@@ -284,16 +284,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fromInput && toInput) {
     fromInput.addEventListener('change', function() {
       sellDateFrom = this.value;
-      if (sellDateFrom && sellDateTo) {
-        loadSells();
-      }
+      if (sellDateFrom && !sellDateTo) { sellDateTo = sellDateFrom; toInput.value = sellDateTo; }
+      if (sellDateFrom && sellDateTo) loadSells();
     });
     
     toInput.addEventListener('change', function() {
       sellDateTo = this.value;
-      if (sellDateFrom && sellDateTo) {
-        loadSells();
-      }
+      if (sellDateTo && !sellDateFrom) { sellDateFrom = sellDateTo; fromInput.value = sellDateFrom; }
+      if (sellDateFrom && sellDateTo) loadSells();
     });
   }
 });
