@@ -2,7 +2,7 @@ var _sheetCache = {};
 var _cacheTTL = 30000;
 
 var ALL_RANGES = [
-  '_database!A1:M31',
+  '_database!A1:M100',
   'Sells!A:M',
   'Tradeins!A:O',
   'Exchanges!A:T',
@@ -14,7 +14,9 @@ var ALL_RANGES = [
   'PriceRate!A:E',
   'Pricing!A:E',
   '_notifications!A:I',
-  '_log!A:G'
+  '_log!A:G',
+  'StockMove_Old!A:K',
+  'StockMove_New!A:K'
 ];
 
 async function batchFetchAll() {
