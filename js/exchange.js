@@ -379,8 +379,16 @@ document.addEventListener('DOMContentLoaded', function() {
   var fromInput = document.getElementById('exchangeDateFrom');
   var toInput = document.getElementById('exchangeDateTo');
   if (fromInput && toInput) {
-    fromInput.addEventListener('change', function() { exchangeDateFrom = this.value; if (exchangeDateFrom && exchangeDateTo) loadExchanges(); });
-    toInput.addEventListener('change', function() { exchangeDateTo = this.value; if (exchangeDateFrom && exchangeDateTo) loadExchanges(); });
+    fromInput.addEventListener('change', function() {
+      exchangeDateFrom = this.value;
+      if (exchangeDateFrom && !exchangeDateTo) { exchangeDateTo = exchangeDateFrom; toInput.value = exchangeDateTo; }
+      if (exchangeDateFrom && exchangeDateTo) loadExchanges();
+    });
+    toInput.addEventListener('change', function() {
+      exchangeDateTo = this.value;
+      if (exchangeDateTo && !exchangeDateFrom) { exchangeDateFrom = exchangeDateTo; fromInput.value = exchangeDateFrom; }
+      if (exchangeDateFrom && exchangeDateTo) loadExchanges();
+    });
   }
 });
 
