@@ -99,9 +99,17 @@
     </nav>
 
     <section id="dashboard" class="section active">
-      <div style="margin-bottom: 20px;">
-        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 36px; color: var(--gold-primary);">Dashboard</h2>
-        <p style="color: var(--text-secondary); margin-top: 5px;">Daily Report: <span id="dashboardDate"></span></p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 36px; color: var(--gold-primary);">Dashboard</h2>
+          <p style="color: var(--text-secondary); margin-top: 5px;">Daily Report: <span id="dashboardDate"></span></p>
+        </div>
+        <div class="date-filter" style="display:flex;gap:10px;align-items:center;">
+          <input type="date" id="dashDateFrom" class="form-input" style="width:auto;" onchange="filterDashboard()">
+          <span>to</span>
+          <input type="date" id="dashDateTo" class="form-input" style="width:auto;" onchange="filterDashboard()">
+          <button class="btn-secondary" onclick="resetDashDateFilter()">Reset</button>
+        </div>
       </div>
       <div id="dashboardContent">
         <h3 style="color: var(--gold-primary); margin-bottom: 15px; font-family: 'Cormorant Garamond', serif;">Today's Transactions</h3>
@@ -873,6 +881,12 @@
     <section id="deletedlist" class="section">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 36px; color: var(--gold-primary);">🗑️ Deleted List</h2>
+        <div class="date-filter" style="display:flex;gap:10px;align-items:center;">
+          <input type="date" id="deletedDateFrom" class="form-input" style="width:auto;" onchange="filterDeletedList()">
+          <span>to</span>
+          <input type="date" id="deletedDateTo" class="form-input" style="width:auto;" onchange="filterDeletedList()">
+          <button class="btn-secondary" onclick="resetDeletedDateFilter()">Reset</button>
+        </div>
       </div>
       <div class="table-container">
         <table>
