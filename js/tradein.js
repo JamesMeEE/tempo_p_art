@@ -306,16 +306,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fromInput && toInput) {
     fromInput.addEventListener('change', function() {
       tradeinDateFrom = this.value;
-      if (tradeinDateFrom && tradeinDateTo) {
-        loadTradeins();
-      }
+      if (tradeinDateFrom && !tradeinDateTo) { tradeinDateTo = tradeinDateFrom; toInput.value = tradeinDateTo; }
+      if (tradeinDateFrom && tradeinDateTo) loadTradeins();
     });
     
     toInput.addEventListener('change', function() {
       tradeinDateTo = this.value;
-      if (tradeinDateFrom && tradeinDateTo) {
-        loadTradeins();
-      }
+      if (tradeinDateTo && !tradeinDateFrom) { tradeinDateFrom = tradeinDateTo; fromInput.value = tradeinDateFrom; }
+      if (tradeinDateFrom && tradeinDateTo) loadTradeins();
     });
   }
 });
