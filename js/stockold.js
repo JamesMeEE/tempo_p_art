@@ -185,18 +185,35 @@ async function viewBillDetail(id, type) {
     else if (type === 'SELL') sheetRange = 'Sells!A:L';
     else if (type === 'WITHDRAW') sheetRange = 'Withdraws!A:J';
 
-    var fetches = [];
-    fetches.push(callAppsScript('GET_STOCK_MOVES', { sheet: 'StockMove_Old' }));
-    fetches.push(callAppsScript('GET_STOCK_MOVES', { sheet: 'StockMove_New' }));
+    var fetches = [
+      fetchSheetData('StockMove_Old!A:K'),
+      fetchSheetData('StockMove_New!A:K')
+    ];
     if (sheetRange) fetches.push(fetchSheetData(sheetRange));
     var results = await Promise.all(fetches);
 
-    var allMoves = [];
-    if (results[0].data && results[0].data.moves) allMoves = allMoves.concat(results[0].data.moves);
-    if (results[1].data && results[1].data.moves) allMoves = allMoves.concat(results[1].data.moves);
     var moveRow = null;
-    for (var i = allMoves.length - 1; i >= 0; i--) {
-      if (allMoves[i].id === id) { moveRow = allMoves[i]; break; }
+    for (var si = 0; si < 2; si++) {
+      var sData = results[si];
+      if (sData && sData.length > 1) {
+        for (var mi = sData.length - 1; mi >= 1; mi--) {
+          if (String(sData[mi][1] || '') === id) {
+            moveRow = {
+              id: sData[mi][1],
+              type: sData[mi][2],
+              items: sData[mi][3],
+              goldG: parseFloat(sData[mi][4]) || 0,
+              dir: String(sData[mi][5] || ''),
+              price: parseFloat(sData[mi][6]) || 0,
+              user: sData[mi][7],
+              wacG: parseFloat(sData[mi][8]) || 0,
+              wacB: parseFloat(sData[mi][9]) || 0
+            };
+            break;
+          }
+        }
+        if (moveRow) break;
+      }
     }
 
     var txData = results.length > 2 ? results[2] : [];
