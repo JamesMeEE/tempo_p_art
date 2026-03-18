@@ -271,7 +271,15 @@ document.addEventListener('DOMContentLoaded', function() {
   var f = document.getElementById('accDateFrom');
   var t = document.getElementById('accDateTo');
   if (f && t) {
-    f.addEventListener('change', function() { _accDateFrom = this.value; if (_accDateFrom && _accDateTo) loadAccounting(); });
-    t.addEventListener('change', function() { _accDateTo = this.value; if (_accDateFrom && _accDateTo) loadAccounting(); });
+    f.addEventListener('change', function() {
+      _accDateFrom = this.value;
+      if (_accDateFrom && !_accDateTo) { _accDateTo = _accDateFrom; t.value = _accDateTo; }
+      if (_accDateFrom && _accDateTo) loadAccounting();
+    });
+    t.addEventListener('change', function() {
+      _accDateTo = this.value;
+      if (_accDateTo && !_accDateFrom) { _accDateFrom = _accDateTo; f.value = _accDateFrom; }
+      if (_accDateFrom && _accDateTo) loadAccounting();
+    });
   }
 });
