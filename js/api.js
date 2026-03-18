@@ -1,5 +1,5 @@
 var _sheetCache = {};
-var _cacheTTL = 30000;
+var _cacheTTL = 60000;
 
 var ALL_RANGES = [
   '_database!A1:M100',
