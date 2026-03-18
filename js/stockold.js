@@ -167,8 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var f = document.getElementById('stockOldDateFrom');
   var t = document.getElementById('stockOldDateTo');
   if (f && t) {
-    f.addEventListener('change', function() { stockOldDateFrom = this.value; if (stockOldDateFrom && stockOldDateTo) loadStockOld(); });
-    t.addEventListener('change', function() { stockOldDateTo = this.value; if (stockOldDateFrom && stockOldDateTo) loadStockOld(); });
+    f.addEventListener('change', function() { stockOldDateFrom = this.value; if (stockOldDateFrom && !stockOldDateTo) { stockOldDateTo = stockOldDateFrom; t.value = stockOldDateTo; } if (stockOldDateFrom && stockOldDateTo) loadStockOld(); });
+    t.addEventListener('change', function() { stockOldDateTo = this.value; if (stockOldDateTo && !stockOldDateFrom) { stockOldDateFrom = stockOldDateTo; f.value = stockOldDateFrom; } if (stockOldDateFrom && stockOldDateTo) loadStockOld(); });
   }
 });
 
