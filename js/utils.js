@@ -632,16 +632,37 @@ function printBill(encodedData, type) {
   setTimeout(function() { printWin.print(); }, 300);
 }
 
+var _deletedDateFrom = null;
+var _deletedDateTo = null;
+
 async function loadDeletedList() {
   try {
     var tbody = document.getElementById('deletedListTable');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;"><div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div></td></tr>';
+    
+    if (!_deletedDateFrom || !_deletedDateTo) {
+      var td = getTodayDateString();
+      _deletedDateFrom = td;
+      _deletedDateTo = td;
+    }
+    document.getElementById('deletedDateFrom').value = _deletedDateFrom;
+    document.getElementById('deletedDateTo').value = _deletedDateTo;
+    
+    var fromParts = _deletedDateFrom.split('-');
+    var toParts = _deletedDateTo.split('-');
+    var dayStart = new Date(parseInt(fromParts[0]), parseInt(fromParts[1])-1, parseInt(fromParts[2]), 0, 0, 0);
+    var dayEnd = new Date(parseInt(toParts[0]), parseInt(toParts[1])-1, parseInt(toParts[2]), 23, 59, 59);
+    
     var data = await fetchSheetData('_log!A:G');
     if (!data || data.length <= 1) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No deleted records</td></tr>';
       return;
     }
-    var rows = data.slice(1).filter(function(r) { return String(r[1] || '').toUpperCase() === 'DELETE'; });
+    var rows = data.slice(1).filter(function(r) {
+      if (String(r[1] || '').toUpperCase() !== 'DELETE') return false;
+      var d = parseSheetDate(r[0]);
+      return d && d >= dayStart && d <= dayEnd;
+    });
     rows.sort(function(a, b) { return new Date(b[0]) - new Date(a[0]); });
     if (rows.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No deleted records</td></tr>';
@@ -706,4 +727,17 @@ async function loadDeletedList() {
         '</tr>';
     }).join('');
   } catch(e) {}
+}
+
+function filterDeletedList() {
+  _deletedDateFrom = document.getElementById('deletedDateFrom').value;
+  _deletedDateTo = document.getElementById('deletedDateTo').value;
+  if (_deletedDateFrom && _deletedDateTo) loadDeletedList();
+}
+
+function resetDeletedDateFilter() {
+  var td = getTodayDateString();
+  _deletedDateFrom = td;
+  _deletedDateTo = td;
+  loadDeletedList();
 }
