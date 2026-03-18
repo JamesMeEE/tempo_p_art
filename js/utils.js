@@ -466,9 +466,9 @@ async function viewTransactionDetail(type, jsonData) {
       var payments = [];
       var salesNames = [];
       try {
-        var userData = await fetchSheetData('_database!A33:D100');
-        if (userData && userData.length > 1) {
-          for (var ui = 1; ui < userData.length; ui++) {
+        var userData = await fetchSheetData('_database!A1:M100');
+        if (userData && userData.length > 33) {
+          for (var ui = 33; ui < userData.length; ui++) {
             if (String(userData[ui][0] || '').trim() === 'Sales') {
               var sName = String(userData[ui][1] || '').trim();
               if (sName) salesNames.push(sName);
@@ -490,6 +490,20 @@ async function viewTransactionDetail(type, jsonData) {
             }
           }
         } catch(e2) {}
+      }
+
+      if (payments.length === 0) {
+        try {
+          var logCB = await fetchSheetData('_log_cashbank!A:I');
+          if (logCB && logCB.length > 1) {
+            var logFound = logCB.slice(1).filter(function(r) {
+              return r[6] && String(r[6]).indexOf(txId) !== -1;
+            });
+            if (logFound.length > 0) {
+              payments = payments.concat(logFound);
+            }
+          }
+        } catch(e4) {}
       }
 
       if (payments.length === 0) {
