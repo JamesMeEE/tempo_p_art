@@ -47,7 +47,7 @@ async function loadWithdraws() {
           }
         } else {
           var wdPaid = parseFloat(row[5]) || 0;
-          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['Items', items], ['Premium', formatNumber(premium) + ' LAK'], ['Total', formatNumber(total) + ' LAK'], ['Customer Paid', wdPaid > 0 ? formatNumber(wdPaid) + ' LAK' : '-'], ['Date', formatDateTime(row[6])], ['Status', status], ['Sale', saleName]]));
+          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['Items', items], ['Premium', formatNumber(premium) + ' LAK'], ['Total', formatNumber(total) + ' LAK'], ['Customer Paid', wdPaid > 0 ? formatNumber(wdPaid) + ' LAK' : '-'], ['Note', row[9] || '-'], ['Date', formatDateTime(row[6])], ['Status', status], ['Sale', saleName]]));
           actions = '<button class="btn-action" onclick="viewTransactionDetail(\'Withdraw\',\'' + detail + '\')" style="background:#555;">👁 View</button>';
         }
         
