@@ -72,6 +72,8 @@ async function loadDashboard() {
 function filterDashboard() {
   _dashDateFrom = document.getElementById('dashDateFrom').value;
   _dashDateTo = document.getElementById('dashDateTo').value;
+  if (_dashDateFrom && !_dashDateTo) { _dashDateTo = _dashDateFrom; document.getElementById('dashDateTo').value = _dashDateTo; }
+  if (!_dashDateFrom && _dashDateTo) { _dashDateFrom = _dashDateTo; document.getElementById('dashDateFrom').value = _dashDateFrom; }
   if (_dashDateFrom && _dashDateTo) loadDashboard();
 }
 
