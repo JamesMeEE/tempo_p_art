@@ -141,9 +141,9 @@ function calculateBuybackTotal() {
 
 async function calculateBuyback() {
   if (_isSubmitting) return;
-  const phone = document.getElementById('buybackPhone').value;
-  if (!phone) {
-    alert('กรุณากรอกเบอร์โทร');
+  const phone = document.getElementById('buybackPhone').value.replace(/\D/g, '');
+  if (!phone || phone.length !== 10) {
+    alert('กรุณากรอกเบอร์โทร 10 หลัก');
     return;
   }
 
