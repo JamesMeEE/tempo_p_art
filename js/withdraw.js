@@ -114,10 +114,10 @@ function calculateWithdrawPremium() {
 
 async function calculateWithdraw() {
   if (_isSubmitting) return;
-  const phone = document.getElementById('withdrawPhone').value;
+  const phone = document.getElementById('withdrawPhone').value.replace(/\D/g, '');
   const withdrawCode = document.getElementById('withdrawCode').value.trim();
-  if (!phone) {
-    alert('กรุณากรอกเบอร์โทร');
+  if (!phone || phone.length !== 10) {
+    alert('กรุณากรอกเบอร์โทร 10 หลัก');
     return;
   }
 
