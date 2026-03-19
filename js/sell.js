@@ -101,9 +101,9 @@ function removeSellProduct(id) {
 
 async function submitSell() {
   if (_isSubmitting) return;
-  var phone = document.getElementById('sellPhone').value;
-  if (!phone) {
-    alert('กรุณากรอกเบอร์โทร');
+  var phone = document.getElementById('sellPhone').value.replace(/\D/g, '');
+  if (!phone || phone.length !== 10) {
+    alert('กรุณากรอกเบอร์โทร 10 หลัก');
     return;
   }
 
