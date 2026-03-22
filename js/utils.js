@@ -707,7 +707,7 @@ async function loadDeletedList() {
           '<br><b>Total:</b> ' + formatNumber(rawData[3]) + ' LAK' +
           '<br><b>Status:</b> ' + (rawData[10] || '-') +
           '<br><b>Sale:</b> ' + (rawData[11] || '-');
-      } else if (type === 'TRADEIN' && rawData.length > 0) {
+      } else if ((type === 'TRADEIN' || type === 'TRADE-IN') && rawData.length > 0) {
         detail = '<b>Phone:</b> ' + (rawData[1] || '-') +
           '<br><b>Old Gold:</b> ' + safeFmt(rawData[2]) +
           '<br><b>New Gold:</b> ' + safeFmt(rawData[3]) +
@@ -743,7 +743,7 @@ async function loadDeletedList() {
         if (dataStr.length > 100) dataStr = dataStr.substring(0, 100) + '...';
         detail = dataStr;
       }
-      var typeColors = { 'SELL': '#4caf50', 'TRADEIN': '#2196f3', 'EXCHANGE': '#ff9800', 'BUYBACK': '#9c27b0', 'WITHDRAW': '#f44336' };
+      var typeColors = { 'SELL': '#4caf50', 'TRADEIN': '#2196f3', 'TRADE-IN': '#2196f3', 'EXCHANGE': '#ff9800', 'BUYBACK': '#9c27b0', 'WITHDRAW': '#f44336' };
       var tColor = typeColors[type] || '#888';
       return '<tr>' +
         '<td style="font-size:11px;white-space:nowrap;">' + (r[0] || '') + '</td>' +
