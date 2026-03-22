@@ -671,7 +671,15 @@ async function loadDeletedList() {
     tbody.innerHTML = rows.map(function(r) {
       var type = String(r[3] || '');
       var rawData = [];
-      try { rawData = JSON.parse(r[5]); } catch(e) {}
+      try {
+        var rawStr = String(r[5] || '');
+        var _ph = '___DQ___';
+        var cleaned = rawStr.replace(/\\"/g, _ph);
+        var tempArr = JSON.parse(cleaned);
+        rawData = tempArr.map(function(v) { return typeof v === 'string' ? v.replace(/___DQ___/g, '"') : v; });
+      } catch(e) {
+        try { rawData = JSON.parse(r[5]); } catch(e2) {}
+      }
       var safeFmt = function(val) {
         if (!val) return '-';
         var str = String(val);
