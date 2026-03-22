@@ -672,14 +672,26 @@ async function loadDeletedList() {
       var type = String(r[3] || '');
       var rawData = [];
       try {
-        var rawStr = String(r[5] || '');
-        var _ph = '___DQ___';
-        var cleaned = rawStr.replace(/\\"/g, _ph);
-        var tempArr = JSON.parse(cleaned);
-        rawData = tempArr.map(function(v) { return typeof v === 'string' ? v.replace(/___DQ___/g, '"') : v; });
-      } catch(e) {
-        try { rawData = JSON.parse(r[5]); } catch(e2) {}
-      }
+        var cellVal = r[5];
+        if (Array.isArray(cellVal)) {
+          rawData = cellVal;
+        } else {
+          var rawStr = String(cellVal || '');
+          try {
+            rawData = JSON.parse(rawStr);
+          } catch(e1) {
+            var _ph = '___DQ___';
+            var cleaned = rawStr.replace(/\\\\"/g, _ph).replace(/\\"/g, _ph);
+            try {
+              var tempArr = JSON.parse(cleaned);
+              rawData = tempArr.map(function(v) { return typeof v === 'string' ? v.replace(/___DQ___/g, '"') : v; });
+            } catch(e2) {
+              cleaned = rawStr.replace(/\\\\/g, '');
+              try { rawData = JSON.parse(cleaned); } catch(e3) {}
+            }
+          }
+        }
+      } catch(e) {}
       var safeFmt = function(val) {
         if (!val) return '-';
         var str = String(val);
