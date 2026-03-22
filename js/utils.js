@@ -674,12 +674,11 @@ async function loadDeletedList() {
       try { rawData = JSON.parse(r[5]); } catch(e) {}
       var safeFmt = function(val) {
         if (!val) return '-';
-        if (typeof val === 'string') {
-          try { var parsed = JSON.parse(val); return formatItemsForTable(JSON.stringify(parsed)); } catch(e) {}
-          return formatItemsForTable(val);
-        }
-        if (Array.isArray(val)) return formatItemsForTable(JSON.stringify(val));
-        return String(val);
+        var str = String(val);
+        str = str.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        try { var parsed = JSON.parse(str); return formatItemsForTable(JSON.stringify(parsed)); } catch(e) {}
+        try { return formatItemsForTable(str); } catch(e2) {}
+        return str;
       };
       var detail = '';
       if (type === 'SELL' && rawData.length > 0) {
