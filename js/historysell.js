@@ -100,15 +100,41 @@ async function loadHistorySell() {
         var color = typeColors[r.type] || '#888';
         var actions = '';
         if (r.status === 'COMPLETED' || r.status === 'PAID') {
-          var detail = encodeURIComponent(JSON.stringify([
-            ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
-            ['Old Gold', r.oldGold], ['New Gold', r.newGold],
-            ['Difference', r.difference], ['Exchange Fee', r.exchangeFee],
-            ['Switch Fee', r.switchFee], ['Premium', r.premium],
-            ['Total', formatNumber(r.total) + ' LAK'],
-            ['Customer Paid', r.paid || '-'], ['Change', r.change || '-'],
-            ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
-          ]));
+          var detailArr = [];
+          if (r.type === 'WITHDRAW') {
+            detailArr = [
+              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Withdraw Code', (r.raw && r.raw[11]) || '-'],
+              ['Items', r.newGold],
+              ['Premium', r.premium],
+              ['Total', formatNumber(r.total) + ' LAK'],
+              ['Customer Paid', r.paid || '-'],
+              ['Note', (r.raw && r.raw[9]) || '-'],
+              ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
+            ];
+          } else if (r.type === 'SELL') {
+            detailArr = [
+              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Items', r.newGold],
+              ['Premium', r.premium],
+              ['Total', formatNumber(r.total) + ' LAK'],
+              ['Customer Paid', r.paid || '-'], ['Change', r.change || '-'],
+              ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
+            ];
+          } else {
+            detailArr = [
+              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Old Gold', r.oldGold], ['New Gold', r.newGold],
+              ['Difference', r.difference], ['Exchange Fee', r.exchangeFee],
+              ['Switch Fee', r.switchFee],
+              ['Free Ex Bill', (r.raw && (r.raw[17] || '')) || '-'],
+              ['Premium', r.premium],
+              ['Total', formatNumber(r.total) + ' LAK'],
+              ['Customer Paid', r.paid || '-'], ['Change', r.change || '-'],
+              ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
+            ];
+          }
+          var detail = encodeURIComponent(JSON.stringify(detailArr));
           actions = '<button class="btn-action" onclick="viewTransactionDetail(\'' + r.type + '\',\'' + detail + '\')" style="background:#555;">👁 View</button>';
         } else if (r.status === 'PENDING' && isManager()) {
           var reviewTypeMap = { 'SELL': 'reviewSell', 'TRADE-IN': 'reviewTradein', 'EXCHANGE': 'reviewExchange', 'SWITCH': 'reviewSwitch', 'FREE EX': 'reviewFreeExchange', 'WITHDRAW': 'reviewWithdraw' };
