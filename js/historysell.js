@@ -21,7 +21,7 @@ async function loadHistorySell() {
       fetchSheetData('Sells!A:L'),
       fetchSheetData('Tradeins!A:N'),
       fetchSheetData('Exchanges!A:T'),
-      fetchSheetData('Withdraws!A:J')
+      fetchSheetData('Withdraws!A:L')
     ]);
 
     var all = [];
