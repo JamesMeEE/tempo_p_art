@@ -295,7 +295,13 @@ async function calculateExchangeNew() {
   var allOldGold = oldExchange.concat(oldSwitch).concat(oldFreeEx);
 
   var freeExBillId = '';
-  if (oldFreeEx.length > 0 && _exFreeExBillData) freeExBillId = _exFreeExBillData.billId;
+  var freeExBillSheet = '';
+  if (oldFreeEx.length > 0) {
+    freeExBillId = document.getElementById('exFreeExBillId').value.trim();
+    if (_exFreeExBillData) {
+      freeExBillSheet = _exFreeExBillData.sheet;
+    }
+  }
 
   try {
     _isSubmitting = true;
@@ -312,7 +318,7 @@ async function calculateExchangeNew() {
       freeExOldGold: JSON.stringify(mergeItems(oldFreeEx)),
       freeExBillId: freeExBillId,
       freeExPremiumDeduct: freeExPremiumDeduct,
-      freeExBillSheet: _exFreeExBillData ? _exFreeExBillData.sheet : '',
+      freeExBillSheet: freeExBillSheet,
       sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname
     });
