@@ -64,6 +64,14 @@ async function loadDashboard() {
   setBoxLoading(dbIds);
   setBoxLoading(reportIds);
 
+  if (isManager()) {
+    document.getElementById('dashWACBox').style.display = 'none';
+    document.getElementById('dashReportBox').style.display = 'none';
+  } else {
+    document.getElementById('dashWACBox').style.display = '';
+    document.getElementById('dashReportBox').style.display = '';
+  }
+
   loadDashDB(dbIds, dashDayStart, dashDayEnd);
   loadDashSales(salesIds, dashDayStart, dashDayEnd);
   loadDashReport();
