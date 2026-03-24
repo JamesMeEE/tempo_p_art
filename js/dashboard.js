@@ -64,7 +64,7 @@ async function loadDashboard() {
   setBoxLoading(dbIds);
   setBoxLoading(reportIds);
 
-  if (isManager()) {
+  if (currentUser && currentUser.role === 'Manager') {
     document.getElementById('dashWACBox').style.display = 'none';
     document.getElementById('dashReportBox').style.display = 'none';
   } else {
