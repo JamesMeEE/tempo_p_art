@@ -69,10 +69,14 @@ async function loadDashboard() {
     document.getElementById('dashWACBox').style.display = 'none';
     document.getElementById('dashReportBox').style.display = 'none';
     plRow.style.gridTemplateColumns = '1fr';
+    document.getElementById('dashPLBox').style.textAlign = 'center';
+    document.getElementById('dashPLBox').style.gridColumn = '';
   } else {
     document.getElementById('dashWACBox').style.display = '';
     document.getElementById('dashReportBox').style.display = '';
     plRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    document.getElementById('dashPLBox').style.textAlign = '';
+    document.getElementById('dashPLBox').style.gridColumn = '';
   }
 
   loadDashDB(dbIds, dashDayStart, dashDayEnd);
