@@ -64,12 +64,15 @@ async function loadDashboard() {
   setBoxLoading(dbIds);
   setBoxLoading(reportIds);
 
+  var plRow = document.getElementById('dashWACBox').parentElement;
   if (currentUser && currentUser.role === 'Manager') {
     document.getElementById('dashWACBox').style.display = 'none';
     document.getElementById('dashReportBox').style.display = 'none';
+    plRow.style.gridTemplateColumns = '1fr';
   } else {
     document.getElementById('dashWACBox').style.display = '';
     document.getElementById('dashReportBox').style.display = '';
+    plRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
   }
 
   loadDashDB(dbIds, dashDayStart, dashDayEnd);
