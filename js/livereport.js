@@ -42,10 +42,8 @@ async function loadLiveReport() {
     var sellsData = await fetchSheetData('Sells!A:M');
     var tradeinsData = await fetchSheetData('Tradeins!A:O');
     var exchangesData = await fetchSheetData('Exchanges!A:T');
-    var switchesData = [];
-    try { switchesData = await fetchSheetData('Switches!A:N'); } catch(e) {}
-    var freeExData = [];
-    try { freeExData = await fetchSheetData('FreeExchanges!A:J'); } catch(e) {}
+    var switchesData = await fetchSheetData('Switches!A:N');
+    var freeExData = await fetchSheetData('FreeExchanges!A:J');
     var buybacksData = await fetchSheetData('Buybacks!A:L');
     var withdrawsData = await fetchSheetData('Withdraws!A:L');
     var closeData = await fetchSheetData('Close!A:K');
@@ -241,53 +239,112 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
 
 function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo) {
   var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
-  var salesLAK = 0, salesG = 0, salesCount = 0;
-  var bbLAK = 0, bbG = 0, bbCount = 0;
-  var wdLAK = 0, wdG = 0, wdCount = 0;
 
-  function sumSheet(data, totalCol, itemsCol, statusCol, dateCol, createdCol, statuses) {
-    var lak = 0, g = 0, count = 0;
-    if (!data || data.length <= 1) return { lak: 0, g: 0, count: 0 };
-    for (var i = 1; i < data.length; i++) {
-      var st = String(data[i][statusCol] || '').trim();
-      if (statuses.indexOf(st) === -1) continue;
-      if (!lrInRange(data[i][dateCol], dateFrom, dateTo)) continue;
-      count++;
-      lak += parseFloat(String(data[i][totalCol]).replace(/,/g, '')) || 0;
-      try { var it = JSON.parse(data[i][itemsCol]); it.forEach(function(x) { g += (weights[x.productId] || 0) * x.qty; }); } catch(e) {}
-    }
-    return { lak: lak, g: g, count: count };
+  function calcG(itemsJson) {
+    var g = 0;
+    try { var it = typeof itemsJson === 'string' ? JSON.parse(itemsJson) : itemsJson; it.forEach(function(x) { g += (weights[x.productId] || 0) * x.qty; }); } catch(e) {}
+    return g;
   }
 
-  var s1 = sumSheet(sellsData, 3, 2, 10, 9, 11, ['COMPLETED']);
-  salesLAK += s1.lak; salesG += s1.g; salesCount += s1.count;
-  var s2 = sumSheet(tradeinsData, 6, 3, 12, 11, 13, ['COMPLETED']);
-  salesLAK += s2.lak; salesG += s2.g; salesCount += s2.count;
-  var s3 = sumSheet(exchangesData, 6, 3, 12, 11, 13, ['COMPLETED']);
-  salesLAK += s3.lak; salesG += s3.g; salesCount += s3.count;
-  var s4 = sumSheet(switchesData, 6, 3, 12, 11, 13, ['COMPLETED']);
-  salesLAK += s4.lak; salesG += s4.g; salesCount += s4.count;
-  var s5 = sumSheet(freeExData, 5, 3, 8, 7, 9, ['COMPLETED']);
-  salesLAK += s5.lak; salesG += s5.g; salesCount += s5.count;
+  function filterRows(data, statusCol, dateCol, statuses) {
+    if (!data || data.length <= 1) return [];
+    return data.slice(1).filter(function(r) {
+      var st = String(r[statusCol] || '').trim();
+      return statuses.indexOf(st) !== -1 && lrInRange(r[dateCol], dateFrom, dateTo);
+    });
+  }
 
-  var b1 = sumSheet(buybacksData, 6, 2, 10, 9, 11, ['COMPLETED', 'PARTIAL']);
-  bbLAK = b1.lak; bbG = b1.g; bbCount = b1.count;
+  var sellRows = filterRows(sellsData, 10, 9, ['COMPLETED', 'PAID']);
+  var tradeinRows = filterRows(tradeinsData, 12, 11, ['COMPLETED', 'PAID']);
+  var exchangeRows = filterRows(exchangesData, 12, 11, ['COMPLETED', 'PAID']);
+  var switchRows = filterRows(switchesData, 12, 11, ['COMPLETED', 'PAID']);
+  var freeExRows = filterRows(freeExData, 8, 7, ['COMPLETED', 'PAID']);
+  var buybackRows = filterRows(buybacksData, 10, 9, ['COMPLETED', 'PARTIAL', 'PAID']);
+  var withdrawRows = filterRows(withdrawsData, 7, 6, ['COMPLETED', 'PAID']);
 
-  var w1 = sumSheet(withdrawsData, 4, 2, 7, 6, 8, ['COMPLETED']);
-  wdLAK = w1.lak; wdG = w1.g; wdCount = w1.count;
+  var sellMoney = 0; sellRows.forEach(function(r) { sellMoney += parseFloat(r[3]) || 0; });
+  var tradeinMoney = 0; tradeinRows.forEach(function(r) { tradeinMoney += parseFloat(r[6]) || 0; });
+  var exchangeMoney = 0; exchangeRows.forEach(function(r) { exchangeMoney += parseFloat(r[6]) || 0; });
+  var switchMoney = 0; switchRows.forEach(function(r) { switchMoney += parseFloat(r[6]) || 0; });
+  var freeExMoney = 0; freeExRows.forEach(function(r) { freeExMoney += parseFloat(r[5]) || 0; });
 
-  var netLAK = salesLAK - bbLAK;
-  var netG = salesG - bbG;
+  var salesTotal = sellMoney + tradeinMoney + exchangeMoney + switchMoney + freeExMoney;
+  var salesTotalTx = sellRows.length + tradeinRows.length + exchangeRows.length + switchRows.length + freeExRows.length;
 
-  var boxStyle = 'background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;';
+  var salesOldGIn = 0, salesNewGOut = 0;
+  sellRows.forEach(function(r) { salesNewGOut += calcG(r[2]); });
+  tradeinRows.forEach(function(r) { salesOldGIn += calcG(r[2]); salesNewGOut += calcG(r[3]); });
+  exchangeRows.forEach(function(r) { salesOldGIn += calcG(r[2]); salesNewGOut += calcG(r[3]); });
+  switchRows.forEach(function(r) { salesOldGIn += calcG(r[2]); salesNewGOut += calcG(r[3]); });
+  freeExRows.forEach(function(r) { salesOldGIn += calcG(r[2]); salesNewGOut += calcG(r[3]); });
 
-  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin-bottom:25px;">';
-  html += '<div style="' + boxStyle + '"><div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;">NET SELL</div><div style="font-size:22px;font-weight:700;color:var(--gold-primary);">' + formatNumber(netLAK) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">' + netG.toFixed(2) + ' g</div></div>';
-  html += '<div style="' + boxStyle + '"><div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;">SALES</div><div style="font-size:22px;font-weight:700;color:#4caf50;">' + formatNumber(salesLAK) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">' + salesG.toFixed(2) + ' g | ' + salesCount + ' บิล</div></div>';
-  html += '<div style="' + boxStyle + '"><div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;">BUYBACK</div><div style="font-size:22px;font-weight:700;color:#f44336;">' + formatNumber(bbLAK) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">' + bbG.toFixed(2) + ' g | ' + bbCount + ' บิล</div></div>';
-  html += '<div style="' + boxStyle + '"><div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;">WITHDRAW</div><div style="font-size:22px;font-weight:700;color:#ff9800;">' + formatNumber(wdLAK) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">' + wdG.toFixed(2) + ' g | ' + wdCount + ' บิล</div></div>';
+  var bbMoney = 0; buybackRows.forEach(function(r) { bbMoney += parseFloat(r[6]) || parseFloat(r[3]) || 0; });
+  var bbOldGIn = 0; buybackRows.forEach(function(r) { bbOldGIn += calcG(r[2]); });
+
+  var wdMoney = 0; withdrawRows.forEach(function(r) { wdMoney += parseFloat(r[4]) || 0; });
+  var wdNewGOut = 0; withdrawRows.forEach(function(r) { wdNewGOut += calcG(r[2]); });
+
+  var totalOldGIn = salesOldGIn + bbOldGIn;
+  var totalNewGOut = salesNewGOut + wdNewGOut;
+  var netSellBaht = (totalNewGOut - totalOldGIn) / 15;
+
+  var salesGoldBaht = (salesNewGOut - salesOldGIn) / 15;
+  var salesTotalPerBaht = salesGoldBaht > 0 ? Math.round(salesTotal / salesGoldBaht) : 0;
+
+  var bbGoldBaht = bbOldGIn / 15;
+  var bbTotalPerBaht = bbGoldBaht > 0 ? Math.round(bbMoney / bbGoldBaht) : 0;
+
+  var boxStyle = 'background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:20px;';
+  var netColor = netSellBaht >= 0 ? '#4caf50' : '#f44336';
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-bottom:25px;">';
+
+  html += '<div style="' + boxStyle + '">';
+  html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">⚖ NET SELL</h3>';
+  html += '<p style="font-size:24px;margin:8px 0;font-weight:bold;color:' + netColor + ';">' + netSellBaht.toFixed(2) + ' <span style="font-size:13px;">บาท</span></p>';
+  html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:11px;color:var(--text-secondary);line-height:1.6;">';
+  html += 'New Out ทั้งหมด: ' + totalNewGOut.toFixed(2) + ' g<br>';
+  html += 'Old In ทั้งหมด: ' + totalOldGIn.toFixed(2) + ' g<br>';
+  html += 'Net: ' + (totalNewGOut - totalOldGIn).toFixed(2) + ' g ÷ 15';
+  html += '</div></div>';
+
+  html += '<div style="' + boxStyle + '">';
+  html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">💰 SALES</h3>';
+  html += '<p style="font-size:18px;margin:3px 0;font-weight:bold;">Total: ' + formatNumber(Math.round(salesTotal)) + ' <span style="font-size:12px;">LAK</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + salesGoldBaht.toFixed(2) + '</b> <span style="font-size:11px;">บาท</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">Total/Amount: <b>' + formatNumber(salesTotalPerBaht) + '</b> <span style="font-size:11px;">LAK/บาท</span></p>';
+  html += '<p style="font-size:11px;color:var(--text-secondary);margin:2px 0;">Tx: <b>' + salesTotalTx + '</b></p>';
+  html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:11px;color:var(--text-secondary);line-height:1.6;">';
+  html += 'Sell: ' + formatNumber(Math.round(sellMoney)) + ' (' + sellRows.length + ')<br>';
+  html += 'Trade-in: ' + formatNumber(Math.round(tradeinMoney)) + ' (' + tradeinRows.length + ')<br>';
+  html += 'Exchange: ' + formatNumber(Math.round(exchangeMoney)) + ' (' + exchangeRows.length + ')';
+  if (switchRows.length > 0) html += '<br>Switch: ' + formatNumber(Math.round(switchMoney)) + ' (' + switchRows.length + ')';
+  if (freeExRows.length > 0) html += '<br>Free-Ex: ' + formatNumber(Math.round(freeExMoney)) + ' (' + freeExRows.length + ')';
   html += '</div>';
+  html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:12px;">';
+  html += '<span style="color:#ff9800;">◀ Old In: ' + salesOldGIn.toFixed(2) + ' g</span><br>';
+  html += '<span style="color:#4caf50;">▶ New Out: ' + salesNewGOut.toFixed(2) + ' g</span>';
+  html += '</div></div>';
 
+  html += '<div style="' + boxStyle + '">';
+  html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">🔄 BUYBACK</h3>';
+  html += '<p style="font-size:18px;margin:3px 0;font-weight:bold;">Total: ' + formatNumber(Math.round(bbMoney)) + ' <span style="font-size:12px;">LAK</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + bbGoldBaht.toFixed(2) + '</b> <span style="font-size:11px;">บาท</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">Total/Amount: <b>' + formatNumber(bbTotalPerBaht) + '</b> <span style="font-size:11px;">LAK/บาท</span></p>';
+  html += '<p style="font-size:11px;color:var(--text-secondary);margin:2px 0;">Tx: <b>' + buybackRows.length + '</b></p>';
+  html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:12px;">';
+  html += '<span style="color:#ff9800;">◀ Old In: ' + bbOldGIn.toFixed(2) + ' g</span>';
+  html += '</div></div>';
+
+  html += '<div style="' + boxStyle + '">';
+  html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">📤 WITHDRAW</h3>';
+  html += '<p style="font-size:18px;margin:3px 0;font-weight:bold;">' + formatNumber(Math.round(wdMoney)) + ' <span style="font-size:12px;">LAK</span></p>';
+  html += '<p style="font-size:11px;color:var(--text-secondary);margin:2px 0;">Tx: <b>' + withdrawRows.length + '</b></p>';
+  html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:12px;">';
+  html += '<span style="color:#4caf50;">▶ New Out: ' + wdNewGOut.toFixed(2) + ' g</span>';
+  html += '</div></div>';
+
+  html += '</div>';
   document.getElementById('lrSummaryBoxes').innerHTML = html;
 }
 
