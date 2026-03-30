@@ -72,13 +72,16 @@ async function loadLiveReport() {
     var salesUserData = {};
     for (var u = 0; u < users.length; u++) {
       var un = users[u];
+      var ud = [], gd = [];
       try {
-        var ud = await fetchSheetData(un + '!A:I');
-        var gd = await fetchSheetData(un + '_Gold!A:F');
-        salesUserData[un] = { sheet: ud || [], gold: gd || [] };
-      } catch(e) {
-        salesUserData[un] = { sheet: [], gold: [] };
-      }
+        var r1 = await callAppsScript('READ_SHEET', { range: un + '!A:I' });
+        if (r1 && r1.success) ud = r1.data || [];
+      } catch(e) {}
+      try {
+        var r2 = await callAppsScript('READ_SHEET', { range: un + '_Gold!A:F' });
+        if (r2 && r2.success) gd = r2.data || [];
+      } catch(e) {}
+      salesUserData[un] = { sheet: ud, gold: gd };
     }
 
     renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
@@ -581,8 +584,16 @@ async function loadSalesInfoBar() {
     if (bar) bar.style.display = 'block';
 
     var sheetName = currentUser.nickname;
-    var userData = await fetchSheetData(sheetName + '!A:I');
-    var goldData = await fetchSheetData(sheetName + '_Gold!A:F');
+    var userData = [];
+    try {
+      var r1 = await callAppsScript('READ_SHEET', { range: sheetName + '!A:I' });
+      if (r1 && r1.success) userData = r1.data || [];
+    } catch(e) {}
+    var goldData = [];
+    try {
+      var r2 = await callAppsScript('READ_SHEET', { range: sheetName + '_Gold!A:F' });
+      if (r2 && r2.success) goldData = r2.data || [];
+    } catch(e) {}
     var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
 
     var cashLAK = 0, cashTHB = 0, cashUSD = 0;
