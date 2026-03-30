@@ -42,8 +42,10 @@ async function loadLiveReport() {
     var sellsData = await fetchSheetData('Sells!A:M');
     var tradeinsData = await fetchSheetData('Tradeins!A:O');
     var exchangesData = await fetchSheetData('Exchanges!A:T');
-    var switchesData = await fetchSheetData('Switches!A:N');
-    var freeExData = await fetchSheetData('FreeExchanges!A:J');
+    var switchesData = [];
+    try { switchesData = await fetchSheetData('Switches!A:N'); } catch(e) {}
+    var freeExData = [];
+    try { freeExData = await fetchSheetData('FreeExchanges!A:J'); } catch(e) {}
     var buybacksData = await fetchSheetData('Buybacks!A:L');
     var withdrawsData = await fetchSheetData('Withdraws!A:L');
     var closeData = await fetchSheetData('Close!A:K');
