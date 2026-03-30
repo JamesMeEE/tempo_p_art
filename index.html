@@ -90,6 +90,7 @@
       <button class="nav-btn" onclick="showSection('cashbank')">◔ Cash/Bank</button>
       <button class="nav-btn" onclick="showSection('accounting')">◕ Accounting</button>
       <button class="nav-btn" onclick="showSection('diff')">◈ Diff</button>
+      <button class="nav-btn" id="navLiveReport" onclick="showSection('livereport')">📊 Report</button>
       <button class="nav-btn" onclick="showSection('reports')">◖ Wealth</button>
       <button class="nav-btn" onclick="showSection('stockold')">◗ Stock (OLD)</button>
       <button class="nav-btn" onclick="showSection('stocknew')">◘ Stock (NEW)</button>
@@ -97,6 +98,14 @@
       <button id="navUserSetting" class="nav-btn" onclick="showSection('usersetting')" style="display:none;">⚙ User Setting</button>
       <button id="navDeletedList" class="nav-btn" onclick="showSection('deletedlist')" style="display:none;">🗑️ Deleted List</button>
     </nav>
+
+    <div id="salesInfoBar" style="display:none;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:12px 18px;margin-bottom:18px;">
+      <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;font-size:13px;">
+        <div><span style="color:var(--text-secondary);">เงินสด:</span> <span id="siCashLAK" style="color:#4caf50;font-weight:600;">0 LAK</span> | <span id="siCashTHB" style="color:#2196f3;font-weight:600;">0 THB</span> | <span id="siCashUSD" style="color:#ff9800;font-weight:600;">0 USD</span></div>
+        <div><span style="color:var(--text-secondary);">ทองเก่า:</span> <span id="siOldGold" style="color:var(--gold-primary);font-weight:600;">0 g</span></div>
+        <div style="border-left:1px solid var(--border-color);padding-left:18px;"><span style="color:var(--text-secondary);">ราคา 1 บาท —</span> Sell: <span id="siSellPrice" style="color:#4caf50;font-weight:600;">0</span> | Buyback: <span id="siBuybackPrice" style="color:#f44336;font-weight:600;">0</span> | Ex: <span id="siExFee" style="color:#ff9800;font-weight:600;">0</span> | Sw: <span id="siSwFee" style="color:#9c27b0;font-weight:600;">0</span></div>
+      </div>
+    </div>
 
     <section id="dashboard" class="section active">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
@@ -706,6 +715,24 @@
           </tfoot>
         </table>
       </div>
+    </section>
+
+    <section id="livereport" class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold-primary);">Live Report</h2>
+        <div style="display:flex;gap:10px;align-items:center;" class="date-filter">
+          <input type="date" id="lrDateFrom" class="form-input" style="width:150px;" onchange="filterLiveReport()">
+          <span>to</span>
+          <input type="date" id="lrDateTo" class="form-input" style="width:150px;" onchange="filterLiveReport()">
+          <button class="btn-secondary" onclick="resetLiveReportFilter()">Today</button>
+        </div>
+      </div>
+      <div id="lrSalesStatus" style="margin-bottom:25px;"><div style="text-align:center;padding:40px;color:var(--text-secondary);">Loading...</div></div>
+      <div id="lrSummaryBoxes" style="margin-bottom:25px;"></div>
+      <div id="lrSalesPayments"></div>
+      <div id="lrBuybackPayments"></div>
+      <div id="lrStockSummary" style="margin-bottom:20px;"></div>
+      <div id="lrGoldTable"></div>
     </section>
 
     <section id="reports" class="section">
@@ -2076,6 +2103,7 @@
   <script src="js/accounting.js?v=120"></script>
   <script src="js/diff.js?v=120"></script>
   <script src="js/reports.js?v=120"></script>
+  <script src="js/livereport.js?v=120"></script>
   <script src="js/usersetting.js?v=120"></script>
   <script src="js/stockold.js?v=120"></script>
   <script src="js/stocknew.js?v=120"></script>
