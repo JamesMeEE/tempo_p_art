@@ -16,9 +16,7 @@ var ALL_RANGES = [
   '_notifications!A:I',
   '_log!A:G',
   'StockMove_Old!A:K',
-  'StockMove_New!A:K',
-  'Switches!A:N',
-  'FreeExchanges!A:J'
+  'StockMove_New!A:K'
 ];
 
 async function batchFetchAll() {
