@@ -599,6 +599,10 @@ async function loadSalesInfoBar() {
   try {
     var bar = document.getElementById('salesInfoBar');
     if (bar) bar.style.display = 'block';
+    var spinner = document.getElementById('salesInfoSpinner');
+    var content = document.getElementById('salesInfoContent');
+    if (spinner) spinner.style.display = 'block';
+    if (content) content.style.display = 'none';
 
     var sheetName = currentUser.nickname;
     var batchRanges = [sheetName + '!A:I', sheetName + '_Gold!A:F'];
@@ -640,14 +644,17 @@ async function loadSalesInfoBar() {
     var exFee = EXCHANGE_FEES['G04'] || 0;
     var swFee = EXCHANGE_FEES_SWITCH['G04'] || 0;
 
-    document.getElementById('siCashLAK').textContent = formatNumber(cashLAK) + ' LAK';
-    document.getElementById('siCashTHB').textContent = formatNumber(cashTHB) + ' THB';
-    document.getElementById('siCashUSD').textContent = formatNumber(cashUSD) + ' USD';
+    document.getElementById('siCashLAK').textContent = formatNumber(cashLAK);
+    document.getElementById('siCashTHB').textContent = formatNumber(cashTHB);
+    document.getElementById('siCashUSD').textContent = formatNumber(cashUSD);
     document.getElementById('siOldGold').textContent = oldGoldG.toFixed(2) + ' g';
     document.getElementById('siSellPrice').textContent = formatNumber(sellPrice);
     document.getElementById('siBuybackPrice').textContent = formatNumber(buybackPrice);
     document.getElementById('siExFee').textContent = formatNumber(exFee);
     document.getElementById('siSwFee').textContent = formatNumber(swFee);
+
+    if (spinner) spinner.style.display = 'none';
+    if (content) content.style.display = 'grid';
   } catch(e) {
     console.error('loadSalesInfoBar error:', e);
   }

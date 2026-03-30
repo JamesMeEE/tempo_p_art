@@ -99,11 +99,43 @@
       <button id="navDeletedList" class="nav-btn" onclick="showSection('deletedlist')" style="display:none;">🗑️ Deleted List</button>
     </nav>
 
-    <div id="salesInfoBar" style="display:none;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:12px 18px;margin-bottom:18px;">
-      <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;font-size:13px;">
-        <div><span style="color:var(--text-secondary);">เงินสด:</span> <span id="siCashLAK" style="color:#4caf50;font-weight:600;">0 LAK</span> | <span id="siCashTHB" style="color:#2196f3;font-weight:600;">0 THB</span> | <span id="siCashUSD" style="color:#ff9800;font-weight:600;">0 USD</span></div>
-        <div><span style="color:var(--text-secondary);">ทองเก่า:</span> <span id="siOldGold" style="color:var(--gold-primary);font-weight:600;">0 g</span></div>
-        <div style="border-left:1px solid var(--border-color);padding-left:18px;"><span style="color:var(--text-secondary);">ราคา 1 บาท —</span> Sell: <span id="siSellPrice" style="color:#4caf50;font-weight:600;">0</span> | Buyback: <span id="siBuybackPrice" style="color:#f44336;font-weight:600;">0</span> | Ex: <span id="siExFee" style="color:#ff9800;font-weight:600;">0</span> | Sw: <span id="siSwFee" style="color:#9c27b0;font-weight:600;">0</span></div>
+    <div id="salesInfoBar" style="display:none;margin-bottom:18px;">
+      <div id="salesInfoSpinner" style="text-align:center;padding:16px;">
+        <div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      </div>
+      <div id="salesInfoContent" style="display:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">💵 เงินสด LAK</div>
+          <div id="siCashLAK" style="font-size:16px;font-weight:700;color:#4caf50;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">💵 เงินสด THB</div>
+          <div id="siCashTHB" style="font-size:16px;font-weight:700;color:#2196f3;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">💵 เงินสด USD</div>
+          <div id="siCashUSD" style="font-size:16px;font-weight:700;color:#ff9800;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">📦 ทองเก่าในมือ</div>
+          <div id="siOldGold" style="font-size:16px;font-weight:700;color:var(--gold-primary);">0 g</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">📈 ขาย 1 บาท</div>
+          <div id="siSellPrice" style="font-size:16px;font-weight:700;color:#4caf50;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">📉 รับซื้อ 1 บาท</div>
+          <div id="siBuybackPrice" style="font-size:16px;font-weight:700;color:#f44336;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🔄 ค่าเปลี่ยน 1 บาท</div>
+          <div id="siExFee" style="font-size:16px;font-weight:700;color:#ff9800;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🔀 ค่า Switch 1 บาท</div>
+          <div id="siSwFee" style="font-size:16px;font-weight:700;color:#9c27b0;">0</div>
+        </div>
       </div>
     </div>
 
