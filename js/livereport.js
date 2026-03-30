@@ -38,7 +38,7 @@ async function loadLiveReport() {
   var dateTo = _lrDateTo;
 
   try {
-    var dbData = await fetchSheetData('_database!A1:M31');
+    var dbData = await fetchSheetData('_database!A1:M100');
     var sellsData = await fetchSheetData('Sells!A:M');
     var tradeinsData = await fetchSheetData('Tradeins!A:O');
     var exchangesData = await fetchSheetData('Exchanges!A:T');
@@ -58,11 +58,11 @@ async function loadLiveReport() {
 
     var users = [];
     if (dbData && dbData.length > 33) {
-      for (var i = 32; i < dbData.length; i++) {
+      for (var i = 33; i < dbData.length; i++) {
         if (dbData[i] && dbData[i][2] && String(dbData[i][2]).trim()) {
           var role = String(dbData[i][0] || '').trim();
           var nickname = String(dbData[i][1] || '').trim();
-          if (role === 'User' && nickname) {
+          if (role === 'Sales' && nickname) {
             users.push(nickname);
           }
         }
