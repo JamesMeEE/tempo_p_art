@@ -42,16 +42,6 @@ async function loadLiveReport() {
     var sellsData = await fetchSheetData('Sells!A:M');
     var tradeinsData = await fetchSheetData('Tradeins!A:O');
     var exchangesData = await fetchSheetData('Exchanges!A:T');
-    var switchesData = [];
-    try {
-      var swResult = await callAppsScript('READ_SHEET', { range: 'Switches!A:N' });
-      if (swResult && swResult.success) switchesData = swResult.data || [];
-    } catch(e) {}
-    var freeExData = [];
-    try {
-      var feResult = await callAppsScript('READ_SHEET', { range: 'FreeExchanges!A:J' });
-      if (feResult && feResult.success) freeExData = feResult.data || [];
-    } catch(e) {}
     var buybacksData = await fetchSheetData('Buybacks!A:L');
     var withdrawsData = await fetchSheetData('Withdraws!A:L');
     var closeData = await fetchSheetData('Close!A:K');
@@ -69,19 +59,28 @@ async function loadLiveReport() {
       }
     }
 
+    var batchRanges = ['Switches!A:N', 'FreeExchanges!A:J'];
+    for (var u = 0; u < users.length; u++) {
+      batchRanges.push(users[u] + '!A:I');
+      batchRanges.push(users[u] + '_Gold!A:F');
+    }
+
+    var batchResult = {};
+    try {
+      var br = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(batchRanges) });
+      if (br && br.success && br.data) batchResult = br.data;
+    } catch(e) {}
+
+    var switchesData = batchResult['Switches!A:N'] || [];
+    var freeExData = batchResult['FreeExchanges!A:J'] || [];
+
     var salesUserData = {};
     for (var u = 0; u < users.length; u++) {
       var un = users[u];
-      var ud = [], gd = [];
-      try {
-        var r1 = await callAppsScript('READ_SHEET', { range: un + '!A:I' });
-        if (r1 && r1.success) ud = r1.data || [];
-      } catch(e) {}
-      try {
-        var r2 = await callAppsScript('READ_SHEET', { range: un + '_Gold!A:F' });
-        if (r2 && r2.success) gd = r2.data || [];
-      } catch(e) {}
-      salesUserData[un] = { sheet: ud, gold: gd };
+      salesUserData[un] = {
+        sheet: batchResult[un + '!A:I'] || [],
+        gold: batchResult[un + '_Gold!A:F'] || []
+      };
     }
 
     renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
@@ -584,15 +583,14 @@ async function loadSalesInfoBar() {
     if (bar) bar.style.display = 'block';
 
     var sheetName = currentUser.nickname;
-    var userData = [];
+    var batchRanges = [sheetName + '!A:I', sheetName + '_Gold!A:F'];
+    var userData = [], goldData = [];
     try {
-      var r1 = await callAppsScript('READ_SHEET', { range: sheetName + '!A:I' });
-      if (r1 && r1.success) userData = r1.data || [];
-    } catch(e) {}
-    var goldData = [];
-    try {
-      var r2 = await callAppsScript('READ_SHEET', { range: sheetName + '_Gold!A:F' });
-      if (r2 && r2.success) goldData = r2.data || [];
+      var br = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(batchRanges) });
+      if (br && br.success && br.data) {
+        userData = br.data[sheetName + '!A:I'] || [];
+        goldData = br.data[sheetName + '_Gold!A:F'] || [];
+      }
     } catch(e) {}
     var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
 
