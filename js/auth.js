@@ -168,6 +168,7 @@ async function enterApp() {
   await batchFetchAll();
   await fetchExchangeRates();
   await fetchCurrentPricing();
+  if (typeof loadSalesInfoBar === 'function') loadSalesInfoBar();
   if (typeof checkAndResumePendingClose === 'function') checkAndResumePendingClose();
   callAppsScript('INIT_STOCK').catch(function(){});
   startNotificationPolling();

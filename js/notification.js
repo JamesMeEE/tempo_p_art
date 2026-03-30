@@ -248,6 +248,7 @@ async function refreshPage() {
     await batchFetchAll();
     await fetchExchangeRates();
     await fetchCurrentPricing();
+    if (typeof loadSalesInfoBar === 'function') loadSalesInfoBar();
     await showSection(tabName);
     await pollAll();
   } catch(e) {}
