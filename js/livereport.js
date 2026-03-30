@@ -59,7 +59,7 @@ async function loadLiveReport() {
       }
     }
 
-    var batchRanges = ['Switches!A:N', 'FreeExchanges!A:J'];
+    var batchRanges = ['Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I'];
     for (var u = 0; u < users.length; u++) {
       batchRanges.push(users[u] + '!A:I');
       batchRanges.push(users[u] + '_Gold!A:F');
@@ -73,6 +73,7 @@ async function loadLiveReport() {
 
     var switchesData = batchResult['Switches!A:N'] || [];
     var freeExData = batchResult['FreeExchanges!A:J'] || [];
+    var logCashbankData = batchResult['_log_cashbank!A:I'] || [];
 
     var salesUserData = {};
     for (var u = 0; u < users.length; u++) {
@@ -83,7 +84,7 @@ async function loadLiveReport() {
       };
     }
 
-    renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
+    renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
     renderLRPaymentSummary('lrBuybackPayments', 'ยอดเงินที่จ่าย Buyback', ['BUYBACK'], users, salesUserData, dateFrom, dateTo);
@@ -107,7 +108,7 @@ function lrInRange(dateVal, dateFrom, dateTo) {
   } catch(e) { return false; }
 }
 
-function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo) {
+function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo) {
   var container = document.getElementById('lrSalesStatus');
   if (!container) return;
   var html = '';
@@ -119,6 +120,7 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
     var isOpen = ud.sheet.length > 1 && ud.sheet[1] && ud.sheet[1][0] && String(ud.sheet[1][0]).trim() !== '';
 
     var shiftClosed = false;
+    var closeRow = null;
     if (closeData && closeData.length > 1) {
       for (var ci = 1; ci < closeData.length; ci++) {
         var cu = String(closeData[ci][1] || '').trim();
@@ -129,7 +131,7 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
             var cd = new Date(closeData[ci][2]);
             var cl = new Date(cd.getTime() + 7 * 60 * 60000).toISOString().split('T')[0];
             var today = getTodayLocalStr();
-            if (cl === today) { shiftClosed = true; break; }
+            if (cl === today) { shiftClosed = true; closeRow = closeData[ci]; break; }
           } catch(e) {}
         }
       }
@@ -208,7 +210,23 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
 
     var cashLAK = 0, cashTHB = 0, cashUSD = 0;
     var oldGoldG = 0;
-    if (isOpen && ud.sheet.length > 1) {
+
+    if (shiftClosed) {
+      if (closeRow) {
+        cashLAK = parseFloat(closeRow[3]) || 0;
+        cashTHB = parseFloat(closeRow[4]) || 0;
+        cashUSD = parseFloat(closeRow[5]) || 0;
+        try {
+          var ogJson = closeRow[6];
+          if (ogJson) {
+            var ogItems = typeof ogJson === 'string' ? JSON.parse(ogJson) : ogJson;
+            if (Array.isArray(ogItems)) {
+              ogItems.forEach(function(it) { oldGoldG += (weights[it.productId] || 0) * (it.qty || 0); });
+            }
+          }
+        } catch(e) {}
+      }
+    } else if (isOpen) {
       for (var r = 1; r < ud.sheet.length; r++) {
         if (String(ud.sheet[r][4] || '').trim() === 'Cash') {
           var cur = String(ud.sheet[r][3] || '').trim();
@@ -218,12 +236,12 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
           else if (cur === 'USD') cashUSD += amt;
         }
       }
-    }
-    if (ud.gold.length > 1) {
-      for (var gi = 1; gi < ud.gold.length; gi++) {
-        var pid = String(ud.gold[gi][0] || '').trim();
-        var qty = parseFloat(ud.gold[gi][1]) || 0;
-        oldGoldG += (weights[pid] || 0) * qty;
+      if (ud.gold.length > 1) {
+        for (var gi = 1; gi < ud.gold.length; gi++) {
+          var pid = String(ud.gold[gi][0] || '').trim();
+          var qty = parseFloat(ud.gold[gi][1]) || 0;
+          oldGoldG += (weights[pid] || 0) * qty;
+        }
       }
     }
 
@@ -232,15 +250,13 @@ function renderSalesStatus(users, salesUserData, closeData, sellsData, tradeinsD
     html += '<span style="font-weight:700;font-size:16px;color:var(--gold-primary);">' + name + '</span>';
     html += '<span style="font-size:13px;color:' + statusColor + ';font-weight:600;">' + statusText + '</span>';
     html += '</div>';
-    if (isOpen) {
-      html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-size:13px;">';
-      html += '<div><span style="color:var(--text-secondary);">Sales:</span> ' + formatNumber(sellLAK) + ' LAK | ' + sellG.toFixed(2) + 'g | ' + sellCount + ' บิล</div>';
-      html += '<div><span style="color:var(--text-secondary);">Withdraw:</span> ' + formatNumber(wdLAK) + ' LAK | ' + wdG.toFixed(2) + 'g | ' + wdCount + ' บิล</div>';
-      html += '<div><span style="color:var(--text-secondary);">Buyback:</span> ' + formatNumber(bbLAK) + ' LAK | ' + bbG.toFixed(2) + 'g | ' + bbCount + ' บิล</div>';
-      html += '<div><span style="color:var(--text-secondary);">เงินสด:</span> ' + formatNumber(cashLAK) + ' LAK | ' + formatNumber(cashTHB) + ' THB | ' + formatNumber(cashUSD) + ' USD</div>';
-      html += '<div><span style="color:var(--text-secondary);">ทองเก่า:</span> ' + oldGoldG.toFixed(2) + ' g</div>';
-      html += '</div>';
-    }
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-size:13px;">';
+    html += '<div><span style="color:var(--text-secondary);">Sales:</span> ' + formatNumber(sellLAK) + ' LAK | ' + sellG.toFixed(2) + 'g | ' + sellCount + ' บิล</div>';
+    html += '<div><span style="color:var(--text-secondary);">Withdraw:</span> ' + formatNumber(wdLAK) + ' LAK | ' + wdG.toFixed(2) + 'g | ' + wdCount + ' บิล</div>';
+    html += '<div><span style="color:var(--text-secondary);">Buyback:</span> ' + formatNumber(bbLAK) + ' LAK | ' + bbG.toFixed(2) + 'g | ' + bbCount + ' บิล</div>';
+    html += '<div><span style="color:var(--text-secondary);">เงินสด:</span> ' + formatNumber(cashLAK) + ' LAK | ' + formatNumber(cashTHB) + ' THB | ' + formatNumber(cashUSD) + ' USD</div>';
+    html += '<div><span style="color:var(--text-secondary);">ทองเก่า:</span> ' + oldGoldG.toFixed(2) + ' g</div>';
+    html += '</div>';
     html += '</div>';
   }
 
