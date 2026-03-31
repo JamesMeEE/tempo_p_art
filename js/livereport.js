@@ -89,7 +89,9 @@ async function loadLiveReport() {
     renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
     renderLRPaymentSummary('lrBuybackPayments', 'ยอดเงินที่จ่าย Buyback', ['BUYBACK'], users, salesUserData, dateFrom, dateTo);
     renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
-    renderLRGoldTable(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
+    var stockMoveNewData = await fetchSheetData('StockMove_New!A:K');
+    var stockMoveOldData = await fetchSheetData('StockMove_Old!A:K');
+    renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo);
   } catch(e) {
     console.error('loadLiveReport error:', e);
   }
@@ -200,7 +202,7 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
         var bbCreator = String(buybacksData[bi][11] || '').trim();
         if (bbCreator !== name) continue;
         var bbStatus = String(buybacksData[bi][10] || '').trim();
-        if (bbStatus !== 'COMPLETED' && bbStatus !== 'PARTIAL') continue;
+        if (bbStatus !== 'COMPLETED') continue;
         if (!lrInRange(buybacksData[bi][9], dateFrom, dateTo)) continue;
         bbCount++;
         bbLAK += parseFloat(String(buybacksData[bi][6]).replace(/,/g, '')) || 0;
@@ -287,7 +289,7 @@ function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesDa
   var exchangeRows = filterRows(exchangesData, 12, 11, ['COMPLETED', 'PAID']);
   var switchRows = filterRows(switchesData, 12, 11, ['COMPLETED', 'PAID']);
   var freeExRows = filterRows(freeExData, 8, 7, ['COMPLETED', 'PAID']);
-  var buybackRows = filterRows(buybacksData, 10, 9, ['COMPLETED', 'PARTIAL', 'PAID']);
+  var buybackRows = filterRows(buybacksData, 10, 9, ['COMPLETED', 'PAID']);
   var withdrawRows = filterRows(withdrawsData, 7, 6, ['COMPLETED', 'PAID']);
 
   var sellMoney = 0; sellRows.forEach(function(r) { sellMoney += parseFloat(r[3]) || 0; });
@@ -502,7 +504,7 @@ function renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesDa
   }
   oldInG += sumOldIn(switchesData, 2, 12, 11, ['COMPLETED']);
   oldInG += sumOldIn(freeExData, 2, 8, 7, ['COMPLETED']);
-  oldInG += sumOldIn(buybacksData, 2, 10, 9, ['COMPLETED', 'PARTIAL']);
+  oldInG += sumOldIn(buybacksData, 2, 10, 9, ['COMPLETED']);
 
   var boxStyle = 'background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;';
   var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">';
@@ -512,51 +514,32 @@ function renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesDa
   container.innerHTML = html;
 }
 
-function renderLRGoldTable(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo) {
+function renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo) {
   var container = document.getElementById('lrGoldTable');
   if (!container) return;
   var products = ['G01', 'G02', 'G03', 'G04', 'G05', 'G06', 'G07'];
   var names = { 'G01': '10 บาท', 'G02': '5 บาท', 'G03': '2 บาท', 'G04': '1 บาท', 'G05': '2 สลึง', 'G06': '1 สลึง', 'G07': '1 กรัม' };
-  var out = {}, inn = {};
-  products.forEach(function(p) { out[p] = 0; inn[p] = 0; });
+  var newOut = {}, newIn = {}, oldOut = {}, oldIn = {};
+  products.forEach(function(p) { newOut[p] = 0; newIn[p] = 0; oldOut[p] = 0; oldIn[p] = 0; });
 
-  function countOut(data, itemsCol, statusCol, dateCol, statuses) {
+  function parseMove(data, outMap, inMap) {
     if (!data || data.length <= 1) return;
     for (var i = 1; i < data.length; i++) {
-      if (statuses.indexOf(String(data[i][statusCol] || '').trim()) === -1) continue;
-      if (!lrInRange(data[i][dateCol], dateFrom, dateTo)) continue;
-      try { var it = JSON.parse(data[i][itemsCol]); it.forEach(function(x) { if (out[x.productId] !== undefined) out[x.productId] += x.qty; }); } catch(e) {}
-    }
-  }
-  function countIn(data, itemsCol, statusCol, dateCol, statuses) {
-    if (!data || data.length <= 1) return;
-    for (var i = 1; i < data.length; i++) {
-      if (statuses.indexOf(String(data[i][statusCol] || '').trim()) === -1) continue;
-      if (!lrInRange(data[i][dateCol], dateFrom, dateTo)) continue;
-      try { var it = JSON.parse(data[i][itemsCol]); it.forEach(function(x) { if (inn[x.productId] !== undefined) inn[x.productId] += x.qty; }); } catch(e) {}
+      if (!lrInRange(data[i][0], dateFrom, dateTo)) continue;
+      var dir = String(data[i][5] || '').trim();
+      try {
+        var items = typeof data[i][3] === 'string' ? JSON.parse(data[i][3]) : data[i][3];
+        if (!Array.isArray(items)) continue;
+        items.forEach(function(x) {
+          if (dir === 'OUT' && outMap[x.productId] !== undefined) outMap[x.productId] += (x.qty || 0);
+          if (dir === 'IN' && inMap[x.productId] !== undefined) inMap[x.productId] += (x.qty || 0);
+        });
+      } catch(e) {}
     }
   }
 
-  countOut(sellsData, 2, 10, 9, ['COMPLETED']);
-  countOut(tradeinsData, 3, 12, 11, ['COMPLETED']);
-  countOut(exchangesData, 3, 12, 11, ['COMPLETED']);
-  countOut(switchesData, 3, 12, 11, ['COMPLETED']);
-  countOut(freeExData, 3, 8, 7, ['COMPLETED']);
-  countOut(withdrawsData, 2, 7, 6, ['COMPLETED']);
-
-  countIn(tradeinsData, 2, 12, 11, ['COMPLETED']);
-  countIn(exchangesData, 2, 12, 11, ['COMPLETED']);
-  countIn(switchesData, 2, 12, 11, ['COMPLETED']);
-  countIn(freeExData, 2, 8, 7, ['COMPLETED']);
-  countIn(buybacksData, 2, 10, 9, ['COMPLETED', 'PARTIAL']);
-  if (exchangesData && exchangesData.length > 1) {
-    for (var ei = 1; ei < exchangesData.length; ei++) {
-      if (String(exchangesData[ei][12] || '').trim() !== 'COMPLETED') continue;
-      if (!lrInRange(exchangesData[ei][11], dateFrom, dateTo)) continue;
-      try { if (exchangesData[ei][14]) { var sw = JSON.parse(exchangesData[ei][14]); sw.forEach(function(x) { if (inn[x.productId] !== undefined) inn[x.productId] += x.qty; }); } } catch(e) {}
-      try { if (exchangesData[ei][16]) { var fe = JSON.parse(exchangesData[ei][16]); fe.forEach(function(x) { if (inn[x.productId] !== undefined) inn[x.productId] += x.qty; }); } } catch(e) {}
-    }
-  }
+  parseMove(stockMoveNewData, newOut, newIn);
+  parseMove(stockMoveOldData, oldOut, oldIn);
 
   var thStyle = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.5);padding:10px 8px;font-size:12px;text-align:center;font-weight:700;';
   var tdStyle = 'border:1px solid var(--border-color);padding:8px;text-align:center;font-size:13px;';
@@ -565,25 +548,30 @@ function renderLRGoldTable(sellsData, tradeinsData, exchangesData, switchesData,
   html += '<h3 style="color:var(--gold-primary);font-size:16px;margin-bottom:12px;">รายละเอียดทองแต่ละ Product</h3>';
   html += '<div class="table-container"><table><thead><tr>';
   html += '<th style="' + thStyle + '">Product</th>';
-  html += '<th style="' + thStyle + '">จ่ายออก (ชิ้น)</th>';
-  html += '<th style="' + thStyle + '">ได้รับ (ชิ้น)</th>';
+  html += '<th style="' + thStyle + '">New Out</th>';
+  html += '<th style="' + thStyle + '">New In</th>';
+  html += '<th style="' + thStyle + '">Old Out</th>';
+  html += '<th style="' + thStyle + '">Old In</th>';
   html += '</tr></thead><tbody>';
 
-  var totalOut = 0, totalIn = 0;
+  var tNewOut = 0, tNewIn = 0, tOldOut = 0, tOldIn = 0;
   products.forEach(function(p) {
-    totalOut += out[p];
-    totalIn += inn[p];
+    tNewOut += newOut[p]; tNewIn += newIn[p]; tOldOut += oldOut[p]; tOldIn += oldIn[p];
     html += '<tr>';
     html += '<td style="' + tdStyle + 'font-weight:600;">' + names[p] + ' (' + p + ')</td>';
-    html += '<td style="' + tdStyle + 'color:' + (out[p] > 0 ? '#f44336' : 'var(--text-secondary)') + ';">' + out[p] + '</td>';
-    html += '<td style="' + tdStyle + 'color:' + (inn[p] > 0 ? '#4caf50' : 'var(--text-secondary)') + ';">' + inn[p] + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + (newOut[p] > 0 ? '#f44336' : 'var(--text-secondary)') + ';">' + newOut[p] + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + (newIn[p] > 0 ? '#4caf50' : 'var(--text-secondary)') + ';">' + newIn[p] + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + (oldOut[p] > 0 ? '#f44336' : 'var(--text-secondary)') + ';">' + oldOut[p] + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + (oldIn[p] > 0 ? '#4caf50' : 'var(--text-secondary)') + ';">' + oldIn[p] + '</td>';
     html += '</tr>';
   });
 
   html += '<tr style="background:rgba(212,175,55,0.1);font-weight:700;">';
   html += '<td style="' + tdStyle + 'color:var(--gold-primary);font-weight:700;">รวม</td>';
-  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + totalOut + '</td>';
-  html += '<td style="' + tdStyle + 'color:#4caf50;font-weight:700;">' + totalIn + '</td>';
+  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + tNewOut + '</td>';
+  html += '<td style="' + tdStyle + 'color:#4caf50;font-weight:700;">' + tNewIn + '</td>';
+  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + tOldOut + '</td>';
+  html += '<td style="' + tdStyle + 'color:#4caf50;font-weight:700;">' + tOldIn + '</td>';
   html += '</tr>';
   html += '</tbody></table></div></div>';
 
@@ -641,20 +629,40 @@ async function loadSalesInfoBar() {
     var s1b = currentPricing.sell1Baht || 0;
     var sellPrice = calculateSellPrice('G04', s1b);
     var buybackPrice = calculateBuybackPrice('G04', s1b);
-    var exFee = EXCHANGE_FEES['G04'] || 0;
-    var swFee = EXCHANGE_FEES_SWITCH['G04'] || 0;
 
     document.getElementById('siCashLAK').textContent = formatNumber(cashLAK);
     document.getElementById('siCashTHB').textContent = formatNumber(cashTHB);
     document.getElementById('siCashUSD').textContent = formatNumber(cashUSD);
-    document.getElementById('siOldGold').textContent = oldGoldG.toFixed(2) + ' g';
     document.getElementById('siSellPrice').textContent = formatNumber(sellPrice);
     document.getElementById('siBuybackPrice').textContent = formatNumber(buybackPrice);
-    document.getElementById('siExFee').textContent = formatNumber(exFee);
-    document.getElementById('siSwFee').textContent = formatNumber(swFee);
+    document.getElementById('siThbSell').textContent = formatNumber(currentExchangeRates.THB_Sell || 0);
+    document.getElementById('siUsdSell').textContent = formatNumber(currentExchangeRates.USD_Sell || 0);
+    document.getElementById('siThbBuy').textContent = formatNumber(currentExchangeRates.THB_Buy || 0);
+    document.getElementById('siUsdBuy').textContent = formatNumber(currentExchangeRates.USD_Buy || 0);
+
+    var products = ['G01','G02','G03','G04','G05','G06','G07'];
+    var pNames = {'G01':'10 บาท','G02':'5 บาท','G03':'2 บาท','G04':'1 บาท','G05':'2 สลึง','G06':'1 สลึง','G07':'1 กรัม'};
+    var goldQty = {};
+    products.forEach(function(p) { goldQty[p] = 0; });
+    if (goldData && goldData.length > 1) {
+      for (var gi2 = 1; gi2 < goldData.length; gi2++) {
+        var pid2 = String(goldData[gi2][0] || '').trim();
+        var qty2 = parseFloat(goldData[gi2][1]) || 0;
+        if (goldQty[pid2] !== undefined) goldQty[pid2] += qty2;
+      }
+    }
+    var tblHtml = '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+    tblHtml += '<tr><th style="text-align:left;padding:3px 0;color:var(--text-secondary);font-weight:600;">PRODUCT</th><th style="text-align:center;padding:3px 0;color:var(--text-secondary);font-weight:600;">UNIT</th></tr>';
+    products.forEach(function(p) {
+      var q = goldQty[p];
+      var c = q > 0 ? 'color:var(--gold-primary);font-weight:600;' : 'color:var(--text-secondary);';
+      tblHtml += '<tr style="border-top:1px solid var(--border-color);"><td style="padding:6px 0;">' + pNames[p] + '</td><td style="text-align:center;padding:6px 0;' + c + '">' + q + '</td></tr>';
+    });
+    tblHtml += '</table>';
+    document.getElementById('siOldGoldTable').innerHTML = tblHtml;
 
     if (spinner) spinner.style.display = 'none';
-    if (content) content.style.display = 'grid';
+    if (content) content.style.display = 'block';
   } catch(e) {
     console.error('loadSalesInfoBar error:', e);
   }
