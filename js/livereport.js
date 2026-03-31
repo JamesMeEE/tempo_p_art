@@ -103,7 +103,7 @@ async function loadLiveReport() {
     renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
-    renderLRPaymentSummary('lrBuybackPayments', 'ยอดเงินที่จ่าย Buyback', ['BUYBACK'], users, salesUserData, dateFrom, dateTo);
+    renderLRBuybackPayments(buybacksData, dateFrom, dateTo);
     renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo);
   } catch(e) {
@@ -236,9 +236,15 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
         try {
           var ogJson = closeRow[6];
           if (ogJson) {
-            var ogItems = typeof ogJson === 'string' ? JSON.parse(ogJson) : ogJson;
-            if (Array.isArray(ogItems)) {
-              ogItems.forEach(function(it) { oldGoldG += (weights[it.productId] || 0) * (it.qty || 0); });
+            var ogParsed = typeof ogJson === 'string' ? JSON.parse(ogJson) : ogJson;
+            if (Array.isArray(ogParsed)) {
+              ogParsed.forEach(function(it) { oldGoldG += (weights[it.productId] || 0) * (it.qty || 0); });
+            } else if (typeof ogParsed === 'object') {
+              for (var gKey in ogParsed) {
+                if (ogParsed.hasOwnProperty(gKey)) {
+                  oldGoldG += (weights[gKey] || 0) * (parseFloat(ogParsed[gKey]) || 0);
+                }
+              }
             }
           }
         } catch(e) {}
@@ -269,9 +275,11 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
     html += '</div>';
     if (isOpen || shiftClosed) {
       html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-size:13px;">';
-      html += '<div><span style="color:var(--text-secondary);">Sales:</span> ' + formatNumber(sellLAK) + ' LAK | ' + sellG.toFixed(2) + 'g | ' + sellCount + ' บิล</div>';
-      html += '<div><span style="color:var(--text-secondary);">Withdraw:</span> ' + formatNumber(wdLAK) + ' LAK | ' + wdG.toFixed(2) + 'g | ' + wdCount + ' บิล</div>';
-      html += '<div><span style="color:var(--text-secondary);">Buyback:</span> ' + formatNumber(bbLAK) + ' LAK | ' + bbG.toFixed(2) + 'g | ' + bbCount + ' บิล</div>';
+      if (isOpen) {
+        html += '<div><span style="color:var(--text-secondary);">Sales:</span> ' + formatNumber(sellLAK) + ' LAK | ' + sellG.toFixed(2) + 'g | ' + sellCount + ' บิล</div>';
+        html += '<div><span style="color:var(--text-secondary);">Withdraw:</span> ' + formatNumber(wdLAK) + ' LAK | ' + wdG.toFixed(2) + 'g | ' + wdCount + ' บิล</div>';
+        html += '<div><span style="color:var(--text-secondary);">Buyback:</span> ' + formatNumber(bbLAK) + ' LAK | ' + bbG.toFixed(2) + 'g | ' + bbCount + ' บิล</div>';
+      }
       html += '<div><span style="color:var(--text-secondary);">เงินสด:</span> ' + formatNumber(cashLAK) + ' LAK | ' + formatNumber(cashTHB) + ' THB | ' + formatNumber(cashUSD) + ' USD</div>';
       html += '<div><span style="color:var(--text-secondary);">ทองเก่า:</span> ' + oldGoldG.toFixed(2) + ' g</div>';
       html += '</div>';
@@ -468,6 +476,41 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
     html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatNumber(Math.round(val)) + '</td>';
   });
   html += '</tr>';
+  html += '</tbody></table></div></div>';
+
+  container.innerHTML = html;
+}
+
+function renderLRBuybackPayments(buybacksData, dateFrom, dateTo) {
+  var container = document.getElementById('lrBuybackPayments');
+  if (!container) return;
+
+  var totalPaid = 0;
+  var count = 0;
+
+  if (buybacksData && buybacksData.length > 1) {
+    for (var i = 1; i < buybacksData.length; i++) {
+      var status = String(buybacksData[i][10] || '').trim();
+      if (status !== 'COMPLETED' && status !== 'PARTIAL') continue;
+      if (!lrInRange(buybacksData[i][9], dateFrom, dateTo)) continue;
+      count++;
+      totalPaid += parseFloat(buybacksData[i][7]) || 0;
+    }
+  }
+
+  var thStyle = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.5);padding:10px 8px;font-size:12px;text-align:center;font-weight:700;';
+  var tdStyle = 'border:1px solid var(--border-color);padding:8px;text-align:right;font-size:13px;';
+
+  var html = '<div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:20px;">';
+  html += '<h3 style="color:var(--gold-primary);font-size:16px;margin-bottom:12px;">ยอดเงินที่จ่าย Buyback</h3>';
+  html += '<div class="table-container"><table><thead><tr>';
+  html += '<th style="' + thStyle + '">รายการ</th>';
+  html += '<th style="' + thStyle + '">จำนวน</th>';
+  html += '</tr></thead><tbody>';
+  html += '<tr><td style="' + tdStyle + 'text-align:left;font-weight:600;">ยอดจ่ายรวม (Paid)</td>';
+  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + formatNumber(Math.round(totalPaid)) + ' LAK</td></tr>';
+  html += '<tr><td style="' + tdStyle + 'text-align:left;">จำนวนบิล</td>';
+  html += '<td style="' + tdStyle + '">' + count + '</td></tr>';
   html += '</tbody></table></div></div>';
 
   container.innerHTML = html;
