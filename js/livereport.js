@@ -100,10 +100,9 @@ async function loadLiveReport() {
 function lrInRange(dateVal, dateFrom, dateTo) {
   if (!dateFrom && !dateTo) return true;
   try {
-    var d = new Date(dateVal);
-    if (isNaN(d.getTime())) return false;
-    var local = new Date(d.getTime() + 7 * 60 * 60000);
-    var ds = local.toISOString().split('T')[0];
+    var d = parseSheetDate(dateVal);
+    if (!d || isNaN(d.getTime())) return false;
+    var ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     if (dateFrom && ds < dateFrom) return false;
     if (dateTo && ds > dateTo) return false;
     return true;
@@ -130,10 +129,12 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
         if (cu !== name) continue;
         if (cs === 'PENDING' || cs === 'APPROVED') {
           try {
-            var cd = new Date(closeData[ci][2]);
-            var cl = new Date(cd.getTime() + 7 * 60 * 60000).toISOString().split('T')[0];
-            var today = getTodayLocalStr();
-            if (cl === today) { shiftClosed = true; closeRow = closeData[ci]; break; }
+            var cd = parseSheetDate(closeData[ci][2]);
+            if (cd) {
+              var cl = cd.getFullYear() + '-' + String(cd.getMonth() + 1).padStart(2, '0') + '-' + String(cd.getDate()).padStart(2, '0');
+              var today = getTodayLocalStr();
+              if (cl === today) { shiftClosed = true; closeRow = closeData[ci]; break; }
+            }
           } catch(e) {}
         }
       }
