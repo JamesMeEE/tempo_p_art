@@ -40,7 +40,7 @@ async function loadLiveReport() {
   try {
     var baseRanges = [
       '_database!A1:M100', 'Sells!A:M', 'Tradeins!A:O', 'Exchanges!A:T',
-      'Buybacks!A:L', 'Withdraws!A:L', 'Close!A:K',
+      'Buybacks!A:L', 'Withdraws!A:L', 'Close!A:K', 'CashBank!A:I',
       'Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I',
       'StockMove_New!A:K', 'StockMove_Old!A:K'
     ];
@@ -61,6 +61,7 @@ async function loadLiveReport() {
     var switchesData = preResult['Switches!A:N'] || [];
     var freeExData = preResult['FreeExchanges!A:J'] || [];
     var logCashbankData = preResult['_log_cashbank!A:I'] || [];
+    var cashbankData = preResult['CashBank!A:I'] || [];
     var stockMoveNewData = preResult['StockMove_New!A:K'] || [];
     var stockMoveOldData = preResult['StockMove_Old!A:K'] || [];
 
@@ -103,7 +104,7 @@ async function loadLiveReport() {
     renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
-    renderLRBuybackPayments(buybacksData, dateFrom, dateTo);
+    renderLRBuybackPayments(cashbankData, dateFrom, dateTo);
     renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo);
   } catch(e) {
@@ -481,20 +482,43 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
   container.innerHTML = html;
 }
 
-function renderLRBuybackPayments(buybacksData, dateFrom, dateTo) {
+function renderLRBuybackPayments(cashbankData, dateFrom, dateTo) {
   var container = document.getElementById('lrBuybackPayments');
   if (!container) return;
 
-  var totalPaid = 0;
-  var count = 0;
+  var methods = ['Cash', 'BCEL', 'LDB', 'Other'];
+  var currencies = ['LAK', 'THB', 'USD'];
+  var totals = {};
+  var feeTotals = {};
+  methods.forEach(function(m) {
+    totals[m] = {};
+    feeTotals[m] = {};
+    currencies.forEach(function(c) { totals[m][c] = 0; feeTotals[m][c] = 0; });
+  });
 
-  if (buybacksData && buybacksData.length > 1) {
-    for (var i = 1; i < buybacksData.length; i++) {
-      var status = String(buybacksData[i][10] || '').trim();
-      if (status !== 'COMPLETED' && status !== 'PARTIAL') continue;
-      if (!lrInRange(buybacksData[i][9], dateFrom, dateTo)) continue;
-      count++;
-      totalPaid += parseFloat(buybacksData[i][7]) || 0;
+  if (cashbankData && cashbankData.length > 1) {
+    for (var i = 1; i < cashbankData.length; i++) {
+      var row = cashbankData[i];
+      var type = String(row[1] || '').trim();
+      if (type !== 'BUYBACK' && type !== 'BUYBACK_FEE') continue;
+      if (!lrInRange(row[7], dateFrom, dateTo)) continue;
+
+      var amt = Math.abs(parseFloat(row[2]) || 0);
+      var cur = String(row[3] || '').trim();
+      var method = String(row[4] || '').trim();
+      var bank = String(row[5] || '').trim();
+
+      var key = 'Cash';
+      if (method === 'Bank') {
+        if (bank === 'BCEL') key = 'BCEL';
+        else if (bank === 'LDB') key = 'LDB';
+        else key = 'Other';
+      }
+
+      if (currencies.indexOf(cur) >= 0) {
+        if (type === 'BUYBACK') totals[key][cur] += amt;
+        else if (type === 'BUYBACK_FEE') feeTotals[key][cur] += amt;
+      }
     }
   }
 
@@ -504,13 +528,51 @@ function renderLRBuybackPayments(buybacksData, dateFrom, dateTo) {
   var html = '<div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:20px;">';
   html += '<h3 style="color:var(--gold-primary);font-size:16px;margin-bottom:12px;">ยอดเงินที่จ่าย Buyback</h3>';
   html += '<div class="table-container"><table><thead><tr>';
-  html += '<th style="' + thStyle + '">รายการ</th>';
-  html += '<th style="' + thStyle + '">จำนวน</th>';
+  html += '<th style="' + thStyle + '">ช่องทาง</th>';
+  currencies.forEach(function(c) { html += '<th style="' + thStyle + '">' + c + '</th>'; });
   html += '</tr></thead><tbody>';
-  html += '<tr><td style="' + tdStyle + 'text-align:left;font-weight:600;">ยอดจ่ายรวม (Paid)</td>';
-  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + formatNumber(Math.round(totalPaid)) + ' LAK</td></tr>';
-  html += '<tr><td style="' + tdStyle + 'text-align:left;">จำนวนบิล</td>';
-  html += '<td style="' + tdStyle + '">' + count + '</td></tr>';
+
+  var grandTotal = {};
+  currencies.forEach(function(c) { grandTotal[c] = 0; });
+
+  methods.forEach(function(m) {
+    html += '<tr>';
+    html += '<td style="' + tdStyle + 'text-align:left;font-weight:600;">' + m + '</td>';
+    currencies.forEach(function(c) {
+      var val = totals[m][c];
+      grandTotal[c] += val;
+      var color = val > 0 ? '#f44336' : 'var(--text-secondary)';
+      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatNumber(Math.round(val)) + '</td>';
+    });
+    html += '</tr>';
+  });
+
+  var hasFee = false;
+  var feeGrand = {};
+  currencies.forEach(function(c) { feeGrand[c] = 0; });
+  methods.forEach(function(m) {
+    currencies.forEach(function(c) { feeGrand[c] += feeTotals[m][c]; if (feeTotals[m][c] > 0) hasFee = true; });
+  });
+
+  if (hasFee) {
+    html += '<tr style="border-top:2px solid var(--border-color);">';
+    html += '<td style="' + tdStyle + 'text-align:left;font-weight:600;color:#ff9800;">Fee</td>';
+    currencies.forEach(function(c) {
+      var val = feeGrand[c];
+      var color = val > 0 ? '#ff9800' : 'var(--text-secondary)';
+      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatNumber(Math.round(val)) + '</td>';
+    });
+    html += '</tr>';
+  }
+
+  html += '<tr style="background:rgba(212,175,55,0.1);font-weight:700;">';
+  html += '<td style="' + tdStyle + 'text-align:left;color:var(--gold-primary);">รวม</td>';
+  currencies.forEach(function(c) {
+    var val = grandTotal[c] + feeGrand[c];
+    var color = val > 0 ? '#f44336' : 'var(--text-secondary)';
+    html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatNumber(Math.round(val)) + '</td>';
+  });
+  html += '</tr>';
   html += '</tbody></table></div></div>';
 
   container.innerHTML = html;
@@ -688,9 +750,6 @@ async function loadSalesInfoBar() {
     var sellPrice = calculateSellPrice('G04', s1b);
     var buybackPrice = calculateBuybackPrice('G04', s1b);
 
-    document.getElementById('siCashLAK').textContent = formatNumber(cashLAK);
-    document.getElementById('siCashTHB').textContent = formatNumber(cashTHB);
-    document.getElementById('siCashUSD').textContent = formatNumber(cashUSD);
     document.getElementById('siSellPrice').textContent = formatNumber(sellPrice);
     document.getElementById('siBuybackPrice').textContent = formatNumber(buybackPrice);
     document.getElementById('siThbSell').textContent = formatNumber(currentExchangeRates.THB_Sell || 0);
@@ -709,14 +768,24 @@ async function loadSalesInfoBar() {
         if (goldQty[pid2] !== undefined) goldQty[pid2] += qty2;
       }
     }
-    var tblHtml = '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
-    tblHtml += '<tr><th style="text-align:left;padding:3px 0;color:var(--text-secondary);font-weight:600;">PRODUCT</th><th style="text-align:center;padding:3px 0;color:var(--text-secondary);font-weight:600;">UNIT</th></tr>';
+    var thS = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.3);padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;';
+    var tblHtml = '<table style="width:100%;border-collapse:collapse;">';
+    tblHtml += '<thead><tr><th style="' + thS + 'text-align:left;">Product</th><th style="' + thS + 'text-align:center;">Unit</th></tr></thead><tbody>';
+    var totalQty = 0;
     products.forEach(function(p) {
       var q = goldQty[p];
-      var c = q > 0 ? 'color:var(--gold-primary);font-weight:600;' : 'color:var(--text-secondary);';
-      tblHtml += '<tr style="border-top:1px solid var(--border-color);"><td style="padding:6px 0;">' + pNames[p] + '</td><td style="text-align:center;padding:6px 0;' + c + '">' + q + '</td></tr>';
+      totalQty += q;
+      var valStyle = q > 0 ? 'color:var(--gold-primary);font-weight:700;font-size:15px;' : 'color:var(--text-secondary);';
+      tblHtml += '<tr style="border-top:1px solid var(--border-color);">';
+      tblHtml += '<td style="padding:8px 12px;font-size:13px;">' + pNames[p] + '</td>';
+      tblHtml += '<td style="padding:8px 12px;text-align:center;' + valStyle + '">' + q + '</td>';
+      tblHtml += '</tr>';
     });
-    tblHtml += '</table>';
+    tblHtml += '<tr style="border-top:2px solid var(--gold-primary);background:rgba(212,175,55,0.08);">';
+    tblHtml += '<td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--gold-primary);">รวม</td>';
+    tblHtml += '<td style="padding:10px 12px;text-align:center;font-size:15px;font-weight:700;color:var(--gold-primary);">' + totalQty + '</td>';
+    tblHtml += '</tr>';
+    tblHtml += '</tbody></table>';
     document.getElementById('siOldGoldTable').innerHTML = tblHtml;
 
     if (spinner) spinner.style.display = 'none';

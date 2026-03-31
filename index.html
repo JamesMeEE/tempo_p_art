@@ -104,43 +104,37 @@
         <div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
       </div>
       <div id="salesInfoContent" style="display:none;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">📈 ขาย 1 บาท</div>
-            <div id="siSellPrice" style="font-size:16px;font-weight:700;color:#4caf50;">0</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">📈 ราคาขาย 1 บาท</div>
+            <div id="siSellPrice" style="font-size:20px;font-weight:700;color:#4caf50;">0</div>
           </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">📉 รับซื้อ 1 บาท</div>
-            <div id="siBuybackPrice" style="font-size:16px;font-weight:700;color:#f44336;">0</div>
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">📉 รับซื้อ 1 บาท</div>
+            <div id="siBuybackPrice" style="font-size:20px;font-weight:700;color:#f44336;">0</div>
           </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🇹🇭 THB/LAK (Sell)</div>
-            <div id="siThbSell" style="font-size:16px;font-weight:700;color:#2196f3;">0</div>
-          </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🇺🇸 USD/LAK (Sell)</div>
-            <div id="siUsdSell" style="font-size:16px;font-weight:700;color:#2196f3;">0</div>
-          </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🇹🇭 LAK/THB (Buy)</div>
-            <div id="siThbBuy" style="font-size:16px;font-weight:700;color:#ff9800;">0</div>
-          </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">🇺🇸 LAK/USD (Buy)</div>
-            <div id="siUsdBuy" style="font-size:16px;font-weight:700;color:#ff9800;">0</div>
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:16px;text-align:center;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">🇹🇭 THB Sell</div>
+              <div id="siThbSell" style="font-size:14px;font-weight:700;color:#2196f3;">0</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">🇹🇭 THB Buy</div>
+              <div id="siThbBuy" style="font-size:14px;font-weight:700;color:#ff9800;">0</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">🇺🇸 USD Sell</div>
+              <div id="siUsdSell" style="font-size:14px;font-weight:700;color:#2196f3;">0</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">🇺🇸 USD Buy</div>
+              <div id="siUsdBuy" style="font-size:14px;font-weight:700;color:#ff9800;">0</div>
+            </div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;">
-            <div style="font-size:13px;color:var(--gold-primary);font-weight:600;margin-bottom:10px;">💵 เงินสดในมือ</div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;"><span style="color:var(--text-secondary);">LAK</span><span id="siCashLAK" style="font-weight:600;color:#4caf50;">0</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid var(--border-color);"><span style="color:var(--text-secondary);">THB</span><span id="siCashTHB" style="font-weight:600;color:#2196f3;">0</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid var(--border-color);"><span style="color:var(--text-secondary);">USD</span><span id="siCashUSD" style="font-weight:600;color:#ff9800;">0</span></div>
-          </div>
-          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:14px;">
-            <div style="font-size:13px;color:var(--gold-primary);font-weight:600;margin-bottom:10px;">◀ ทองเก่าที่ได้รับ</div>
-            <div id="siOldGoldTable"></div>
-          </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:16px;">
+          <div style="font-size:14px;color:var(--gold-primary);font-weight:700;margin-bottom:12px;">◀ ทองเก่าที่ได้รับ</div>
+          <div id="siOldGoldTable"></div>
         </div>
       </div>
     </div>
