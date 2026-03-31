@@ -129,6 +129,8 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
   if (!container) return;
   var html = '';
   var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
+  var products = ['G01','G02','G03','G04','G05','G06','G07'];
+  window._lrSalesGold = {};
 
   for (var u = 0; u < users.length; u++) {
     var name = users[u];
@@ -269,11 +271,36 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
       }
     }
 
+    var goldQty = {};
+    products.forEach(function(p) { goldQty[p] = 0; });
+
+    if (shiftClosed && closeRow) {
+      try {
+        var ogParsed = typeof closeRow[6] === 'string' ? JSON.parse(closeRow[6]) : closeRow[6];
+        if (Array.isArray(ogParsed)) {
+          ogParsed.forEach(function(it) { if (goldQty[it.productId] !== undefined) goldQty[it.productId] += (it.qty || 0); });
+        } else if (typeof ogParsed === 'object' && ogParsed) {
+          for (var gk in ogParsed) { if (goldQty[gk] !== undefined) goldQty[gk] += (parseFloat(ogParsed[gk]) || 0); }
+        }
+      } catch(e) {}
+    } else if (isOpen && ud.gold.length > 1) {
+      for (var gi = 1; gi < ud.gold.length; gi++) {
+        var pid = String(ud.gold[gi][0] || '').trim();
+        var qty = parseFloat(ud.gold[gi][1]) || 0;
+        if (goldQty[pid] !== undefined) goldQty[pid] += qty;
+      }
+    }
+    window._lrSalesGold[name] = goldQty;
+
     html += '<div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:12px;">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:' + (isOpen || shiftClosed ? '10' : '0') + 'px;">';
     html += '<span style="font-weight:700;font-size:16px;color:var(--gold-primary);">' + name + '</span>';
+    html += '<div style="display:flex;gap:10px;align-items:center;">';
+    if (isOpen || shiftClosed) {
+      html += '<button onclick="showLROldGoldModal(\'' + name.replace(/'/g, "\\'") + '\')" style="background:var(--gold-primary);color:#000;border:none;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;">View ทองเก่า</button>';
+    }
     html += '<span style="font-size:13px;color:' + statusColor + ';font-weight:600;">' + statusText + '</span>';
-    html += '</div>';
+    html += '</div></div>';
     if (isOpen || shiftClosed) {
       html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-size:13px;">';
       if (isOpen) {
@@ -669,19 +696,15 @@ function renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo)
   html += '<div class="table-container"><table><thead><tr>';
   html += '<th style="' + thStyle + '">Product</th>';
   html += '<th style="' + thStyle + '">New Out</th>';
-  html += '<th style="' + thStyle + '">New In</th>';
-  html += '<th style="' + thStyle + '">Old Out</th>';
   html += '<th style="' + thStyle + '">Old In</th>';
   html += '</tr></thead><tbody>';
 
-  var tNewOut = 0, tNewIn = 0, tOldOut = 0, tOldIn = 0;
+  var tNewOut = 0, tOldIn = 0;
   products.forEach(function(p) {
-    tNewOut += newOut[p]; tNewIn += newIn[p]; tOldOut += oldOut[p]; tOldIn += oldIn[p];
+    tNewOut += newOut[p]; tOldIn += oldIn[p];
     html += '<tr>';
     html += '<td style="' + tdStyle + 'font-weight:600;">' + names[p] + ' (' + p + ')</td>';
     html += '<td style="' + tdStyle + 'color:' + (newOut[p] > 0 ? '#f44336' : 'var(--text-secondary)') + ';">' + newOut[p] + '</td>';
-    html += '<td style="' + tdStyle + 'color:' + (newIn[p] > 0 ? '#4caf50' : 'var(--text-secondary)') + ';">' + newIn[p] + '</td>';
-    html += '<td style="' + tdStyle + 'color:' + (oldOut[p] > 0 ? '#f44336' : 'var(--text-secondary)') + ';">' + oldOut[p] + '</td>';
     html += '<td style="' + tdStyle + 'color:' + (oldIn[p] > 0 ? '#4caf50' : 'var(--text-secondary)') + ';">' + oldIn[p] + '</td>';
     html += '</tr>';
   });
@@ -689,13 +712,45 @@ function renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo)
   html += '<tr style="background:rgba(212,175,55,0.1);font-weight:700;">';
   html += '<td style="' + tdStyle + 'color:var(--gold-primary);font-weight:700;">รวม</td>';
   html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + tNewOut + '</td>';
-  html += '<td style="' + tdStyle + 'color:#4caf50;font-weight:700;">' + tNewIn + '</td>';
-  html += '<td style="' + tdStyle + 'color:#f44336;font-weight:700;">' + tOldOut + '</td>';
   html += '<td style="' + tdStyle + 'color:#4caf50;font-weight:700;">' + tOldIn + '</td>';
   html += '</tr>';
   html += '</tbody></table></div></div>';
 
   container.innerHTML = html;
+}
+
+function showLROldGoldModal(salesName) {
+  var modal = document.getElementById('lrOldGoldModal');
+  var title = document.getElementById('lrOldGoldTitle');
+  var content = document.getElementById('lrOldGoldContent');
+  if (!modal || !content) return;
+
+  title.textContent = '◀ ทองเก่าที่ได้รับ — ' + salesName;
+
+  var goldQty = (window._lrSalesGold && window._lrSalesGold[salesName]) || {};
+  var products = ['G01','G02','G03','G04','G05','G06','G07'];
+  var pNames = {'G01':'10 บาท','G02':'5 บาท','G03':'2 บาท','G04':'1 บาท','G05':'2 สลึง','G06':'1 สลึง','G07':'1 กรัม'};
+
+  var thS = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.3);padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;';
+  var html = '<table style="width:100%;border-collapse:collapse;">';
+  html += '<thead><tr><th style="' + thS + 'text-align:left;">Product</th><th style="' + thS + 'text-align:center;">Unit</th></tr></thead><tbody>';
+  var totalQty = 0;
+  products.forEach(function(p) {
+    var q = goldQty[p] || 0;
+    totalQty += q;
+    var valStyle = q > 0 ? 'color:var(--gold-primary);font-weight:700;font-size:15px;' : 'color:var(--text-secondary);';
+    html += '<tr style="border-top:1px solid var(--border-color);">';
+    html += '<td style="padding:8px 12px;font-size:13px;">' + pNames[p] + '</td>';
+    html += '<td style="padding:8px 12px;text-align:center;' + valStyle + '">' + q + '</td>';
+    html += '</tr>';
+  });
+  html += '<tr style="border-top:2px solid var(--gold-primary);background:rgba(212,175,55,0.08);">';
+  html += '<td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--gold-primary);">รวม</td>';
+  html += '<td style="padding:10px 12px;text-align:center;font-size:15px;font-weight:700;color:var(--gold-primary);">' + totalQty + '</td>';
+  html += '</tr></tbody></table>';
+
+  content.innerHTML = html;
+  modal.style.display = 'flex';
 }
 
 async function loadSalesInfoBar() {
@@ -713,38 +768,6 @@ async function loadSalesInfoBar() {
     if (content) content.style.display = 'none';
 
     var sheetName = currentUser.nickname;
-    var batchRanges = [sheetName + '!A:I', sheetName + '_Gold!A:F'];
-    var userData = [], goldData = [];
-    try {
-      var br = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(batchRanges) });
-      if (br && br.success && br.data) {
-        userData = br.data[sheetName + '!A:I'] || [];
-        goldData = br.data[sheetName + '_Gold!A:F'] || [];
-      }
-    } catch(e) {}
-    var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
-
-    var cashLAK = 0, cashTHB = 0, cashUSD = 0;
-    if (userData && userData.length > 1) {
-      for (var i = 1; i < userData.length; i++) {
-        if (String(userData[i][4] || '').trim() === 'Cash') {
-          var cur = String(userData[i][3] || '').trim();
-          var amt = parseFloat(userData[i][2]) || 0;
-          if (cur === 'LAK') cashLAK += amt;
-          else if (cur === 'THB') cashTHB += amt;
-          else if (cur === 'USD') cashUSD += amt;
-        }
-      }
-    }
-
-    var oldGoldG = 0;
-    if (goldData && goldData.length > 1) {
-      for (var gi = 1; gi < goldData.length; gi++) {
-        var pid = String(goldData[gi][0] || '').trim();
-        var qty = parseFloat(goldData[gi][1]) || 0;
-        oldGoldG += (weights[pid] || 0) * qty;
-      }
-    }
 
     var s1b = currentPricing.sell1Baht || 0;
     var sellPrice = calculateSellPrice('G04', s1b);
@@ -756,37 +779,6 @@ async function loadSalesInfoBar() {
     document.getElementById('siUsdSell').textContent = formatNumber(currentExchangeRates.USD_Sell || 0);
     document.getElementById('siThbBuy').textContent = formatNumber(currentExchangeRates.THB_Buy || 0);
     document.getElementById('siUsdBuy').textContent = formatNumber(currentExchangeRates.USD_Buy || 0);
-
-    var products = ['G01','G02','G03','G04','G05','G06','G07'];
-    var pNames = {'G01':'10 บาท','G02':'5 บาท','G03':'2 บาท','G04':'1 บาท','G05':'2 สลึง','G06':'1 สลึง','G07':'1 กรัม'};
-    var goldQty = {};
-    products.forEach(function(p) { goldQty[p] = 0; });
-    if (goldData && goldData.length > 1) {
-      for (var gi2 = 1; gi2 < goldData.length; gi2++) {
-        var pid2 = String(goldData[gi2][0] || '').trim();
-        var qty2 = parseFloat(goldData[gi2][1]) || 0;
-        if (goldQty[pid2] !== undefined) goldQty[pid2] += qty2;
-      }
-    }
-    var thS = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.3);padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;';
-    var tblHtml = '<table style="width:100%;border-collapse:collapse;">';
-    tblHtml += '<thead><tr><th style="' + thS + 'text-align:left;">Product</th><th style="' + thS + 'text-align:center;">Unit</th></tr></thead><tbody>';
-    var totalQty = 0;
-    products.forEach(function(p) {
-      var q = goldQty[p];
-      totalQty += q;
-      var valStyle = q > 0 ? 'color:var(--gold-primary);font-weight:700;font-size:15px;' : 'color:var(--text-secondary);';
-      tblHtml += '<tr style="border-top:1px solid var(--border-color);">';
-      tblHtml += '<td style="padding:8px 12px;font-size:13px;">' + pNames[p] + '</td>';
-      tblHtml += '<td style="padding:8px 12px;text-align:center;' + valStyle + '">' + q + '</td>';
-      tblHtml += '</tr>';
-    });
-    tblHtml += '<tr style="border-top:2px solid var(--gold-primary);background:rgba(212,175,55,0.08);">';
-    tblHtml += '<td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--gold-primary);">รวม</td>';
-    tblHtml += '<td style="padding:10px 12px;text-align:center;font-size:15px;font-weight:700;color:var(--gold-primary);">' + totalQty + '</td>';
-    tblHtml += '</tr>';
-    tblHtml += '</tbody></table>';
-    document.getElementById('siOldGoldTable').innerHTML = tblHtml;
 
     if (spinner) spinner.style.display = 'none';
     if (content) content.style.display = 'block';
