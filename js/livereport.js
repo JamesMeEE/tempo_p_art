@@ -38,13 +38,31 @@ async function loadLiveReport() {
   var dateTo = _lrDateTo;
 
   try {
-    var dbData = await fetchSheetData('_database!A1:M100');
-    var sellsData = await fetchSheetData('Sells!A:M');
-    var tradeinsData = await fetchSheetData('Tradeins!A:O');
-    var exchangesData = await fetchSheetData('Exchanges!A:T');
-    var buybacksData = await fetchSheetData('Buybacks!A:L');
-    var withdrawsData = await fetchSheetData('Withdraws!A:L');
-    var closeData = await fetchSheetData('Close!A:K');
+    var baseRanges = [
+      '_database!A1:M100', 'Sells!A:M', 'Tradeins!A:O', 'Exchanges!A:T',
+      'Buybacks!A:L', 'Withdraws!A:L', 'Close!A:K',
+      'Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I',
+      'StockMove_New!A:K', 'StockMove_Old!A:K'
+    ];
+
+    var preResult = {};
+    try {
+      var preBr = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(baseRanges) });
+      if (preBr && preBr.success && preBr.data) preResult = preBr.data;
+    } catch(e) {}
+
+    var dbData = preResult['_database!A1:M100'] || [];
+    var sellsData = preResult['Sells!A:M'] || [];
+    var tradeinsData = preResult['Tradeins!A:O'] || [];
+    var exchangesData = preResult['Exchanges!A:T'] || [];
+    var buybacksData = preResult['Buybacks!A:L'] || [];
+    var withdrawsData = preResult['Withdraws!A:L'] || [];
+    var closeData = preResult['Close!A:K'] || [];
+    var switchesData = preResult['Switches!A:N'] || [];
+    var freeExData = preResult['FreeExchanges!A:J'] || [];
+    var logCashbankData = preResult['_log_cashbank!A:I'] || [];
+    var stockMoveNewData = preResult['StockMove_New!A:K'] || [];
+    var stockMoveOldData = preResult['StockMove_Old!A:K'] || [];
 
     var users = [];
     if (dbData && dbData.length > 33) {
@@ -59,28 +77,26 @@ async function loadLiveReport() {
       }
     }
 
-    var batchRanges = ['Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I'];
+    var userRanges = [];
     for (var u = 0; u < users.length; u++) {
-      batchRanges.push(users[u] + '!A:I');
-      batchRanges.push(users[u] + '_Gold!A:F');
+      userRanges.push(users[u] + '!A:I');
+      userRanges.push(users[u] + '_Gold!A:F');
     }
 
-    var batchResult = {};
-    try {
-      var br = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(batchRanges) });
-      if (br && br.success && br.data) batchResult = br.data;
-    } catch(e) {}
-
-    var switchesData = batchResult['Switches!A:N'] || [];
-    var freeExData = batchResult['FreeExchanges!A:J'] || [];
-    var logCashbankData = batchResult['_log_cashbank!A:I'] || [];
+    var userResult = {};
+    if (userRanges.length > 0) {
+      try {
+        var uBr = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(userRanges) });
+        if (uBr && uBr.success && uBr.data) userResult = uBr.data;
+      } catch(e) {}
+    }
 
     var salesUserData = {};
     for (var u = 0; u < users.length; u++) {
       var un = users[u];
       salesUserData[un] = {
-        sheet: batchResult[un + '!A:I'] || [],
-        gold: batchResult[un + '_Gold!A:F'] || []
+        sheet: userResult[un + '!A:I'] || [],
+        gold: userResult[un + '_Gold!A:F'] || []
       };
     }
 
@@ -89,8 +105,6 @@ async function loadLiveReport() {
     renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
     renderLRPaymentSummary('lrBuybackPayments', 'ยอดเงินที่จ่าย Buyback', ['BUYBACK'], users, salesUserData, dateFrom, dateTo);
     renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
-    var stockMoveNewData = await fetchSheetData('StockMove_New!A:K');
-    var stockMoveOldData = await fetchSheetData('StockMove_Old!A:K');
     renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo);
   } catch(e) {
     console.error('loadLiveReport error:', e);
