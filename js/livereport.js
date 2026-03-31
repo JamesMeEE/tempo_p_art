@@ -103,7 +103,7 @@ async function loadLiveReport() {
 
     renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
-    renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, dateFrom, dateTo);
+    renderLRPaymentSummary('lrSalesPayments', 'ยอดเงินที่ได้รับจากการขาย', ['SELL', 'TRADEIN', 'EXCHANGE', 'SWITCH', 'FREE_EXCHANGE', 'FREE-EX', 'WITHDRAW'], users, salesUserData, logCashbankData, dateFrom, dateTo);
     renderLRBuybackPayments(cashbankData, dateFrom, dateTo);
     renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo);
     renderLRGoldTable(stockMoveNewData, stockMoveOldData, dateFrom, dateTo);
@@ -429,7 +429,7 @@ function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesDa
   document.getElementById('lrSummaryBoxes').innerHTML = html;
 }
 
-function renderLRPaymentSummary(containerId, title, types, users, salesUserData, dateFrom, dateTo) {
+function renderLRPaymentSummary(containerId, title, types, users, salesUserData, logCashbankData, dateFrom, dateTo) {
   var container = document.getElementById(containerId);
   if (!container) return;
 
@@ -441,11 +441,10 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
     currencies.forEach(function(c) { totals[m][c] = 0; });
   });
 
-  for (var u = 0; u < users.length; u++) {
-    var ud = salesUserData[users[u]];
-    if (!ud || !ud.sheet || ud.sheet.length <= 1) continue;
-    for (var r = 1; r < ud.sheet.length; r++) {
-      var row = ud.sheet[r];
+  function processRows(data) {
+    if (!data || data.length <= 1) return;
+    for (var r = 1; r < data.length; r++) {
+      var row = data[r];
       var rType = String(row[1] || '').trim();
       var baseType = rType.replace('_CHANGE', '');
       var matched = false;
@@ -469,6 +468,17 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
         totals[key][cur] += amt;
       }
     }
+  }
+
+  for (var u = 0; u < users.length; u++) {
+    var ud = salesUserData[users[u]];
+    if (ud && ud.sheet && ud.sheet.length > 1) {
+      processRows(ud.sheet);
+    }
+  }
+
+  if (logCashbankData && logCashbankData.length > 1) {
+    processRows(logCashbankData);
   }
 
   var thStyle = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.5);padding:10px 8px;font-size:12px;text-align:center;font-weight:700;';
