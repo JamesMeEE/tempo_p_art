@@ -115,7 +115,15 @@ async function loadLiveReport() {
 function lrInRange(dateVal, dateFrom, dateTo) {
   if (!dateFrom && !dateTo) return true;
   try {
-    var d = parseSheetDate(dateVal);
+    var d = null;
+    if (typeof dateVal === 'string' && dateVal.includes('T') && dateVal.includes('Z')) {
+      d = new Date(dateVal);
+      if (!isNaN(d.getTime())) {
+        d = new Date(d.getTime() + 7 * 60 * 60000);
+      }
+    } else {
+      d = parseSheetDate(dateVal);
+    }
     if (!d || isNaN(d.getTime())) return false;
     var ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     if (dateFrom && ds < dateFrom) return false;
@@ -146,7 +154,13 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
         if (cu !== name) continue;
         if (cs === 'PENDING' || cs === 'APPROVED') {
           try {
-            var cd = parseSheetDate(closeData[ci][2]);
+            var cdRaw = closeData[ci][2];
+            var cd = null;
+            if (typeof cdRaw === 'string' && cdRaw.includes('T') && cdRaw.includes('Z')) {
+              cd = new Date(new Date(cdRaw).getTime() + 7 * 60 * 60000);
+            } else {
+              cd = parseSheetDate(cdRaw);
+            }
             if (cd) {
               var cl = cd.getFullYear() + '-' + String(cd.getMonth() + 1).padStart(2, '0') + '-' + String(cd.getDate()).padStart(2, '0');
               var today = getTodayLocalStr();
