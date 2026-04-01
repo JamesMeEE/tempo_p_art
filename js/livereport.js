@@ -112,24 +112,46 @@ async function loadLiveReport() {
   }
 }
 
-function lrInRange(dateVal, dateFrom, dateTo) {
-  if (!dateFrom && !dateTo) return true;
+function lrParseDate(dateVal) {
+  if (!dateVal) return null;
   try {
-    var d = null;
-    if (typeof dateVal === 'string' && dateVal.includes('T') && dateVal.includes('Z')) {
-      d = new Date(dateVal);
-      if (!isNaN(d.getTime())) {
+    if (dateVal instanceof Date) return dateVal;
+    if (typeof dateVal === 'number') return new Date((dateVal - 25569) * 86400 * 1000);
+    var s = String(dateVal);
+    if (s.includes('/')) {
+      var parts = s.split(' ');
+      var dp = parts[0].split('/');
+      var day = parseInt(dp[0]), month = parseInt(dp[1]) - 1, year = parseInt(dp[2]);
+      if (parts.length > 1 && parts[1] && parts[1].includes(':')) {
+        var tp = parts[1].split(':');
+        return new Date(year, month, day, parseInt(tp[0]) || 0, parseInt(tp[1]) || 0, parseInt(tp[2]) || 0);
+      }
+      return new Date(year, month, day);
+    }
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      if (s.includes('T') && (s.includes('Z') || s.includes('+'))) {
         d = new Date(d.getTime() + 7 * 60 * 60000);
       }
-    } else {
-      d = parseSheetDate(dateVal);
+      return d;
     }
-    if (!d || isNaN(d.getTime())) return false;
-    var ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    if (dateFrom && ds < dateFrom) return false;
-    if (dateTo && ds > dateTo) return false;
-    return true;
-  } catch(e) { return false; }
+    return null;
+  } catch(e) { return null; }
+}
+
+function lrDateStr(d) {
+  if (!d) return '';
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function lrInRange(dateVal, dateFrom, dateTo) {
+  if (!dateFrom && !dateTo) return true;
+  var d = lrParseDate(dateVal);
+  if (!d) return false;
+  var ds = lrDateStr(d);
+  if (dateFrom && ds < dateFrom) return false;
+  if (dateTo && ds > dateTo) return false;
+  return true;
 }
 
 function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sellsData, tradeinsData, exchangesData, switchesData, freeExData, buybacksData, withdrawsData, dateFrom, dateTo) {
@@ -154,15 +176,9 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
         if (cu !== name) continue;
         if (cs === 'PENDING' || cs === 'APPROVED') {
           try {
-            var cdRaw = closeData[ci][2];
-            var cd = null;
-            if (typeof cdRaw === 'string' && cdRaw.includes('T') && cdRaw.includes('Z')) {
-              cd = new Date(new Date(cdRaw).getTime() + 7 * 60 * 60000);
-            } else {
-              cd = parseSheetDate(cdRaw);
-            }
+            var cd = lrParseDate(closeData[ci][2]);
             if (cd) {
-              var cl = cd.getFullYear() + '-' + String(cd.getMonth() + 1).padStart(2, '0') + '-' + String(cd.getDate()).padStart(2, '0');
+              var cl = lrDateStr(cd);
               var today = getTodayLocalStr();
               if (cl === today) { shiftClosed = true; closeRow = closeData[ci]; break; }
             }
