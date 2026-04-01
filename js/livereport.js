@@ -38,32 +38,16 @@ async function loadLiveReport() {
   var dateTo = _lrDateTo;
 
   try {
-    var baseRanges = [
-      '_database!A1:M100', 'Sells!A:M', 'Tradeins!A:O', 'Exchanges!A:T',
-      'Buybacks!A:L', 'Withdraws!A:L', 'Close!A:K', 'CashBank!A:I',
-      'Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I',
-      'StockMove_New!A:K', 'StockMove_Old!A:K'
-    ];
-
-    var preResult = {};
-    try {
-      var preBr = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(baseRanges) });
-      if (preBr && preBr.success && preBr.data) preResult = preBr.data;
-    } catch(e) {}
-
-    var dbData = preResult['_database!A1:M100'] || [];
-    var sellsData = preResult['Sells!A:M'] || [];
-    var tradeinsData = preResult['Tradeins!A:O'] || [];
-    var exchangesData = preResult['Exchanges!A:T'] || [];
-    var buybacksData = preResult['Buybacks!A:L'] || [];
-    var withdrawsData = preResult['Withdraws!A:L'] || [];
-    var closeData = preResult['Close!A:K'] || [];
-    var switchesData = preResult['Switches!A:N'] || [];
-    var freeExData = preResult['FreeExchanges!A:J'] || [];
-    var logCashbankData = preResult['_log_cashbank!A:I'] || [];
-    var cashbankData = preResult['CashBank!A:I'] || [];
-    var stockMoveNewData = preResult['StockMove_New!A:K'] || [];
-    var stockMoveOldData = preResult['StockMove_Old!A:K'] || [];
+    var dbData = await fetchSheetData('_database!A1:M100');
+    var sellsData = await fetchSheetData('Sells!A:M');
+    var tradeinsData = await fetchSheetData('Tradeins!A:O');
+    var exchangesData = await fetchSheetData('Exchanges!A:T');
+    var buybacksData = await fetchSheetData('Buybacks!A:L');
+    var withdrawsData = await fetchSheetData('Withdraws!A:L');
+    var closeData = await fetchSheetData('Close!A:K');
+    var cashbankData = await fetchSheetData('CashBank!A:I');
+    var stockMoveNewData = await fetchSheetData('StockMove_New!A:K');
+    var stockMoveOldData = await fetchSheetData('StockMove_Old!A:K');
 
     var users = [];
     if (dbData && dbData.length > 33) {
@@ -78,26 +62,28 @@ async function loadLiveReport() {
       }
     }
 
-    var userRanges = [];
+    var extraRanges = ['Switches!A:N', 'FreeExchanges!A:J', '_log_cashbank!A:I'];
     for (var u = 0; u < users.length; u++) {
-      userRanges.push(users[u] + '!A:I');
-      userRanges.push(users[u] + '_Gold!A:F');
+      extraRanges.push(users[u] + '!A:I');
+      extraRanges.push(users[u] + '_Gold!A:F');
     }
 
-    var userResult = {};
-    if (userRanges.length > 0) {
-      try {
-        var uBr = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(userRanges) });
-        if (uBr && uBr.success && uBr.data) userResult = uBr.data;
-      } catch(e) {}
-    }
+    var extraResult = {};
+    try {
+      var br = await callAppsScript('BATCH_READ', { ranges: JSON.stringify(extraRanges) });
+      if (br && br.success && br.data) extraResult = br.data;
+    } catch(e) {}
+
+    var switchesData = extraResult['Switches!A:N'] || [];
+    var freeExData = extraResult['FreeExchanges!A:J'] || [];
+    var logCashbankData = extraResult['_log_cashbank!A:I'] || [];
 
     var salesUserData = {};
     for (var u = 0; u < users.length; u++) {
       var un = users[u];
       salesUserData[un] = {
-        sheet: userResult[un + '!A:I'] || [],
-        gold: userResult[un + '_Gold!A:F'] || []
+        sheet: extraResult[un + '!A:I'] || [],
+        gold: extraResult[un + '_Gold!A:F'] || []
       };
     }
 
@@ -117,7 +103,10 @@ function lrParseDate(dateVal) {
   try {
     if (dateVal instanceof Date) return dateVal;
     if (typeof dateVal === 'number') return new Date((dateVal - 25569) * 86400 * 1000);
-    var s = String(dateVal);
+    var s = String(dateVal).trim();
+    if (/^\d+(\.\d+)?$/.test(s)) {
+      return new Date((parseFloat(s) - 25569) * 86400 * 1000);
+    }
     if (s.includes('/')) {
       var parts = s.split(' ');
       var dp = parts[0].split('/');
