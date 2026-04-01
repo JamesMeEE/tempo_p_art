@@ -62,7 +62,9 @@ function invalidateCache() {
 }
 
 async function callAppsScript(action, params = {}) {
-  invalidateCache();
+  if (action !== 'BATCH_READ' && action !== 'READ_SHEET' && action !== 'GET_WAC' && action !== 'GET_LIVE_REPORT' && action !== 'GET_STOCK_MOVES' && action !== 'GET_STOCK_MOVES_RANGE' && action !== 'GET_PENDING_TRANSFERS' && action !== 'GET_TODAY_DIFF_TOTAL') {
+    invalidateCache();
+  }
   const queryParams = new URLSearchParams({
     action,
     ...params,
