@@ -128,13 +128,12 @@ function lrParseDate(dateVal) {
       }
       return new Date(year, month, day);
     }
-    var d = new Date(s);
-    if (!isNaN(d.getTime())) {
-      if (s.includes('T') && (s.includes('Z') || s.includes('+'))) {
-        d = new Date(d.getTime() + 7 * 60 * 60000);
-      }
-      return d;
+    var isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
     }
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return d;
     return null;
   } catch(e) { return null; }
 }
