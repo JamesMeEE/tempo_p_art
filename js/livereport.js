@@ -676,14 +676,6 @@ function renderLRStockSummary(sellsData, tradeinsData, exchangesData, switchesDa
   }
   oldInG += sumOldIn(tradeinsData, 2, 12, 11, ['COMPLETED']);
   oldInG += sumOldIn(exchangesData, 2, 12, 11, ['COMPLETED']);
-  if (exchangesData && exchangesData.length > 1) {
-    for (var ei = 1; ei < exchangesData.length; ei++) {
-      if (String(exchangesData[ei][12] || '').trim() !== 'COMPLETED') continue;
-      if (!lrInRange(exchangesData[ei][11], dateFrom, dateTo)) continue;
-      try { if (exchangesData[ei][14]) { var swOld = JSON.parse(exchangesData[ei][14]); swOld.forEach(function(x) { oldInG += (weights[x.productId] || 0) * x.qty; }); } } catch(e) {}
-      try { if (exchangesData[ei][16]) { var feOld = JSON.parse(exchangesData[ei][16]); feOld.forEach(function(x) { oldInG += (weights[x.productId] || 0) * x.qty; }); } } catch(e) {}
-    }
-  }
   oldInG += sumOldIn(switchesData, 2, 12, 11, ['COMPLETED']);
   oldInG += sumOldIn(freeExData, 2, 8, 7, ['COMPLETED']);
   oldInG += sumOldIn(buybacksData, 2, 10, 9, ['COMPLETED']);
