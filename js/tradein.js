@@ -74,174 +74,193 @@ async function loadTradeins() {
   }
 }
 
+function addTradeinFocGold() {
+  tradeinFocCounter++;
+  var container = document.getElementById('tradeinFocGold');
+  var row = document.createElement('div');
+  row.className = 'product-row';
+  row.id = 'tradeinFoc' + tradeinFocCounter;
+  row.innerHTML = '<select class="form-select" onchange="updateTradeinTotal()"><option value="">เลือกสินค้า...</option>' + FIXED_PRODUCTS.map(function(p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('') + '</select><input type="number" class="form-input" placeholder="จำนวน" min="1" step="1" oninput="updateTradeinTotal()"><button type="button" class="btn-remove" onclick="removeTradeinFocGold(' + tradeinFocCounter + ')">×</button>';
+  container.appendChild(row);
+}
+
+function removeTradeinFocGold(id) {
+  var row = document.getElementById('tradeinFoc' + id);
+  if (row) row.remove();
+  updateTradeinTotal();
+}
+
 function addTradeinOldGold() {
   tradeinOldCounter++;
-  const container = document.getElementById('tradeinOldGold');
-  const row = document.createElement('div');
+  var container = document.getElementById('tradeinOldGold');
+  var row = document.createElement('div');
   row.className = 'product-row';
-  row.id = `tradeinOld${tradeinOldCounter}`;
-  row.innerHTML = `
-    <select class="form-select" onchange="updateTradeinTotal()">
-      <option value="">เลือกสินค้า...</option>
-      ${FIXED_PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-    </select>
-    <input type="number" class="form-input" placeholder="จำนวน" min="1" step="1" oninput="updateTradeinTotal()">
-    <button type="button" class="btn-remove" onclick="removeTradeinOldGold(${tradeinOldCounter})">×</button>
-  `;
+  row.id = 'tradeinOld' + tradeinOldCounter;
+  row.innerHTML = '<select class="form-select" onchange="updateTradeinTotal()"><option value="">เลือกสินค้า...</option>' + FIXED_PRODUCTS.map(function(p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('') + '</select><input type="number" class="form-input" placeholder="จำนวน" min="1" step="1" oninput="updateTradeinTotal()"><button type="button" class="btn-remove" onclick="removeTradeinOldGold(' + tradeinOldCounter + ')">×</button>';
   container.appendChild(row);
 }
 
 function removeTradeinOldGold(id) {
-  const row = document.getElementById(`tradeinOld${id}`);
+  var row = document.getElementById('tradeinOld' + id);
   if (row) row.remove();
   updateTradeinTotal();
 }
 
 function addTradeinNewGold() {
   tradeinNewCounter++;
-  const container = document.getElementById('tradeinNewGold');
-  const row = document.createElement('div');
+  var container = document.getElementById('tradeinNewGold');
+  var row = document.createElement('div');
   row.className = 'product-row';
-  row.id = `tradeinNew${tradeinNewCounter}`;
-  row.innerHTML = `
-    <select class="form-select" onchange="updateTradeinTotal()">
-      <option value="">เลือกสินค้า...</option>
-      ${FIXED_PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-    </select>
-    <input type="number" class="form-input" placeholder="จำนวน" min="1" step="1" oninput="updateTradeinTotal()">
-    <button type="button" class="btn-remove" onclick="removeTradeinNewGold(${tradeinNewCounter})">×</button>
-  `;
+  row.id = 'tradeinNew' + tradeinNewCounter;
+  row.innerHTML = '<select class="form-select" onchange="updateTradeinTotal()"><option value="">เลือกสินค้า...</option>' + FIXED_PRODUCTS.map(function(p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('') + '</select><input type="number" class="form-input" placeholder="จำนวน" min="1" step="1" oninput="updateTradeinTotal()"><button type="button" class="btn-remove" onclick="removeTradeinNewGold(' + tradeinNewCounter + ')">×</button>';
   container.appendChild(row);
 }
 
 function removeTradeinNewGold(id) {
-  const row = document.getElementById(`tradeinNew${id}`);
+  var row = document.getElementById('tradeinNew' + id);
   if (row) row.remove();
   updateTradeinTotal();
 }
 
+function collectItems(containerId) {
+  var items = [];
+  document.querySelectorAll('#' + containerId + ' .product-row').forEach(function(row) {
+    var pid = row.querySelector('select').value;
+    var qty = parseInt(row.querySelector('input').value) || 0;
+    if (pid && qty > 0) items.push({ productId: pid, qty: qty });
+  });
+  return items;
+}
+
 function updateTradeinTotal() {
-  var oldWeight = 0, newWeight = 0, premium = 0;
-  document.querySelectorAll('#tradeinOldGold .product-row').forEach(function(row) {
-    var pid = row.querySelector('select').value;
-    var qty = parseInt(row.querySelector('input').value) || 0;
-    if (pid && qty > 0) {
-      var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === pid; });
-      if (p) oldWeight += p.weight * qty;
-    }
+  var focItems = collectItems('tradeinFocGold');
+  var oldItems = collectItems('tradeinOldGold');
+  var newItems = collectItems('tradeinNewGold');
+
+  var focWeight = 0, oldWeight = 0, newWeight = 0;
+  var focPremium = 0, newPremium = 0;
+
+  focItems.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) focWeight += p.weight * item.qty;
+    if (PREMIUM_PRODUCTS.includes(item.productId)) focPremium += PREMIUM_PER_PIECE * item.qty;
   });
-  document.querySelectorAll('#tradeinNewGold .product-row').forEach(function(row) {
-    var pid = row.querySelector('select').value;
-    var qty = parseInt(row.querySelector('input').value) || 0;
-    if (pid && qty > 0) {
-      var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === pid; });
-      if (p) newWeight += p.weight * qty;
-      if (PREMIUM_PRODUCTS.includes(pid)) premium += PREMIUM_PER_PIECE * qty;
-    }
+  oldItems.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) oldWeight += p.weight * item.qty;
   });
-  var total = 0;
-  if (newWeight > oldWeight && currentPricing.sell1Baht > 0) {
-    var diff = (newWeight - oldWeight) * currentPricing.sell1Baht;
-    total = roundTo1000(diff + premium);
+  newItems.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) newWeight += p.weight * item.qty;
+    if (PREMIUM_PRODUCTS.includes(item.productId)) newPremium += PREMIUM_PER_PIECE * item.qty;
+  });
+
+  var totalOldWeight = focWeight + oldWeight;
+  var premium = newPremium;
+  if (newPremium > 0 && focPremium > 0) {
+    premium = Math.max(0, newPremium - focPremium);
   }
+
+  var total = 0;
+  var diffValue = 0;
+  if (newWeight > totalOldWeight && currentPricing.sell1Baht > 0) {
+    diffValue = (newWeight - totalOldWeight) * currentPricing.sell1Baht;
+    total = roundTo1000(diffValue + premium);
+  }
+
   var el = document.getElementById('tradeinPrice');
   if (el) el.value = total > 0 ? formatNumber(total) + ' LAK' : '0';
+
+  var detail = document.getElementById('tradeinPriceDetail');
+  if (detail) {
+    var lines = [];
+    lines.push('ทองใหม่: ' + newWeight.toFixed(3) + ' บาท | ทองเก่ารวม: ' + totalOldWeight.toFixed(3) + ' บาท (FOC: ' + focWeight.toFixed(3) + ' + Old: ' + oldWeight.toFixed(3) + ')');
+    lines.push('ส่วนต่าง: ' + formatNumber(Math.round(diffValue)) + ' LAK');
+    if (newPremium > 0) lines.push('Premium ทองใหม่: ' + formatNumber(newPremium) + (focPremium > 0 ? ' - FOC Premium: ' + formatNumber(focPremium) + ' = ' + formatNumber(premium) : ''));
+    detail.innerHTML = lines.join('<br>');
+  }
 }
 
 async function calculateTradein() {
   if (_isSubmitting) return;
-  const phone = document.getElementById('tradeinPhone').value.replace(/\D/g, '');
+  var phone = document.getElementById('tradeinPhone').value.replace(/\D/g, '');
   if (!phone || phone.length !== 10) {
     alert('กรุณากรอกเบอร์โทร 10 หลัก');
     return;
   }
 
-  const oldGold = [];
-  document.querySelectorAll('#tradeinOldGold .product-row').forEach(row => {
-    const productId = row.querySelector('select').value;
-    const qty = parseInt(row.querySelector('input').value) || 0;
-    if (productId && qty > 0) {
-      oldGold.push({ productId, qty });
-    }
-  });
+  var focGold = mergeItems(collectItems('tradeinFocGold'));
+  var oldGold = mergeItems(collectItems('tradeinOldGold'));
+  var newGold = mergeItems(collectItems('tradeinNewGold'));
 
-  const newGold = [];
-  document.querySelectorAll('#tradeinNewGold .product-row').forEach(row => {
-    const productId = row.querySelector('select').value;
-    const qty = parseInt(row.querySelector('input').value) || 0;
-    if (productId && qty > 0) {
-      newGold.push({ productId, qty });
-    }
-  });
-
-  if (oldGold.length === 0 || newGold.length === 0) {
-    alert('กรุณาเลือกทองเก่าและทองใหม่');
+  if (oldGold.length === 0 && focGold.length === 0) {
+    alert('กรุณาเลือกทองเก่าอย่างน้อย 1 รายการ');
+    return;
+  }
+  if (newGold.length === 0) {
+    alert('กรุณาเลือกทองใหม่');
     return;
   }
 
-  let oldWeight = 0;
-  oldGold.forEach(item => {
-    const product = FIXED_PRODUCTS.find(p => p.id === item.productId);
-    console.log('Old Gold:', product.name, 'weight:', product.weight, 'qty:', item.qty);
-    oldWeight += product.weight * item.qty;
+  var focWeight = 0, oldWeight = 0, newWeight = 0;
+  var focPremium = 0, newPremium = 0;
+
+  focGold.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) focWeight += p.weight * item.qty;
+    if (PREMIUM_PRODUCTS.includes(item.productId)) focPremium += PREMIUM_PER_PIECE * item.qty;
+  });
+  oldGold.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) oldWeight += p.weight * item.qty;
+  });
+  newGold.forEach(function(item) {
+    var p = FIXED_PRODUCTS.find(function(fp) { return fp.id === item.productId; });
+    if (p) newWeight += p.weight * item.qty;
+    if (PREMIUM_PRODUCTS.includes(item.productId)) newPremium += PREMIUM_PER_PIECE * item.qty;
   });
 
-  let newWeight = 0;
-  let premium = 0;
-
-  newGold.forEach(item => {
-    const product = FIXED_PRODUCTS.find(p => p.id === item.productId);
-    console.log('New Gold:', product.name, 'weight:', product.weight, 'qty:', item.qty);
-    newWeight += product.weight * item.qty;
-    
-    if (PREMIUM_PRODUCTS.includes(item.productId)) {
-      premium += PREMIUM_PER_PIECE * item.qty;
-    }
-  });
-
-  console.log('=== TRADE-IN CALCULATION ===');
-  console.log('Old Weight:', oldWeight, 'บาท');
-  console.log('New Weight:', newWeight, 'บาท');
-  console.log('Weight Difference:', newWeight - oldWeight, 'บาท');
-  console.log('Sell 1 Baht:', currentPricing.sell1Baht, 'LAK');
-  console.log('Difference Value:', (newWeight - oldWeight) * currentPricing.sell1Baht, 'LAK');
-  console.log('Premium:', premium, 'LAK');
-
-  if (newWeight <= oldWeight) {
-    alert('❌ น้ำหนักทองใหม่ต้องมากกว่าทองเก่า!\nทองเก่า: ' + oldWeight.toFixed(3) + ' บาท\nทองใหม่: ' + newWeight.toFixed(3) + ' บาท');
+  var totalOldWeight = focWeight + oldWeight;
+  if (newWeight <= totalOldWeight) {
+    alert('❌ น้ำหนักทองใหม่ต้องมากกว่าทองเก่ารวม!\nทองเก่ารวม (FOC+Old): ' + totalOldWeight.toFixed(3) + ' บาท\nทองใหม่: ' + newWeight.toFixed(3) + ' บาท');
     return;
   }
-  
-  const weightDifference = newWeight - oldWeight;
-  const difference = weightDifference * currentPricing.sell1Baht;
-  const total = roundTo1000(difference + premium);
 
-  console.log('FINAL - difference:', difference, 'LAK');
-  console.log('FINAL - premium:', premium, 'LAK');
-  console.log('FINAL - total:', total, 'LAK');
-  console.log('===========================');
+  var premium = newPremium;
+  if (newPremium > 0 && focPremium > 0) {
+    premium = Math.max(0, newPremium - focPremium);
+  }
+
+  var difference = (newWeight - totalOldWeight) * currentPricing.sell1Baht;
+  var total = roundTo1000(difference + premium);
+
+  var allOldGold = mergeItems(focGold.concat(oldGold));
 
   try {
     _isSubmitting = true;
     showLoading();
-    const result = await callAppsScript('ADD_TRADEIN', {
-      phone,
-      oldGold: JSON.stringify(mergeItems(oldGold)),
-      newGold: JSON.stringify(mergeItems(newGold)),
-      difference,
-      premium,
-      total,
+    var result = await callAppsScript('ADD_TRADEIN', {
+      phone: phone,
+      oldGold: JSON.stringify(allOldGold),
+      newGold: JSON.stringify(newGold),
+      focGold: JSON.stringify(focGold),
+      difference: difference,
+      premium: premium,
+      focPremiumDeduct: Math.min(focPremium, newPremium),
+      total: total,
       sell1Baht: currentPricing.sell1Baht,
       user: currentUser.nickname
     });
-    
+
     if (result.success) {
       endSubmit();
       showToast('✅ สร้างรายการแลกเปลี่ยนสำเร็จ!');
       closeModal('tradeinModal');
       document.getElementById('tradeinPhone').value = '';
+      document.getElementById('tradeinFocGold').innerHTML = '';
       document.getElementById('tradeinOldGold').innerHTML = '';
       document.getElementById('tradeinNewGold').innerHTML = '';
+      tradeinFocCounter = 0;
       tradeinOldCounter = 0;
       tradeinNewCounter = 0;
       addTradeinOldGold();

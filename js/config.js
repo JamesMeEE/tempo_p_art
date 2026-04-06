@@ -71,6 +71,7 @@ let buybackSortOrder = 'desc';
 let withdrawSortOrder = 'desc';
 let tradeinOldCounter = 0;
 let tradeinNewCounter = 0;
+let tradeinFocCounter = 0;
 
 let sellDateFrom = null;
 let sellDateTo = null;

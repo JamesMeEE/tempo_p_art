@@ -1093,18 +1093,24 @@
         <input type="text" class="form-input" id="tradeinPhone" placeholder="Enter phone number" maxlength="10" inputmode="numeric">
       </div>
       <div class="form-group">
-        <label class="form-label">Old Gold</label>
+        <label class="form-label">F.O.C (OLD GOLD)</label>
+        <div id="tradeinFocGold"></div>
+        <button class="btn-secondary" style="margin-top: 10px;" onclick="addTradeinFocGold()">+ Add F.O.C</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">OLD GOLD</label>
         <div id="tradeinOldGold"></div>
         <button class="btn-secondary" style="margin-top: 10px;" onclick="addTradeinOldGold()">+ Add Old Gold</button>
       </div>
       <div class="form-group">
-        <label class="form-label">New Gold</label>
+        <label class="form-label">NEW GOLD</label>
         <div id="tradeinNewGold"></div>
         <button class="btn-secondary" style="margin-top: 10px;" onclick="addTradeinNewGold()">+ Add New Gold</button>
       </div>
       <div class="form-group">
         <label class="form-label">Total Price (LAK)</label>
         <input type="text" class="form-input" id="tradeinPrice" placeholder="0" readonly style="font-weight:bold;font-size:18px;color:var(--gold-primary);">
+        <div id="tradeinPriceDetail" style="font-size:11px;color:var(--text-secondary);margin-top:6px;line-height:1.6;"></div>
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('tradeinModal')">Cancel</button>
