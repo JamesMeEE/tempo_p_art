@@ -46,7 +46,7 @@ async function loadHistorySell() {
       var tChange = parseFloat(r[10]) || 0;
       all.push({
         type: 'TRADE-IN', id: r[0], phone: r[1],
-        oldGold: formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
+        oldGold: r[16] ? formatItemsForTable(subtractItems(r[2], r[16])) : formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
         focGold: r[16] ? formatItemsForTable(r[16]) : '-',
         focPremDeduct: r[17] ? formatNumber(r[17]) + ' LAK' : '-',
         difference: formatNumber(parseFloat(r[4]) || 0), exchangeFee: '-', switchFee: '-',

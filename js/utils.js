@@ -167,6 +167,24 @@ function formatDateTime(dateInput) {
 
 const formatDate = formatDateTime;
 
+function subtractItems(allJson, focJson) {
+  try {
+    var all = typeof allJson === 'string' ? JSON.parse(allJson) : allJson;
+    var foc = typeof focJson === 'string' ? JSON.parse(focJson) : focJson;
+    if (!Array.isArray(all)) return allJson;
+    if (!Array.isArray(foc) || foc.length === 0) return JSON.stringify(all);
+    var focMap = {};
+    foc.forEach(function(f) { focMap[f.productId] = (focMap[f.productId] || 0) + f.qty; });
+    var result = [];
+    all.forEach(function(item) {
+      var remain = item.qty - (focMap[item.productId] || 0);
+      if (remain > 0) result.push({ productId: item.productId, qty: remain });
+      if (focMap[item.productId]) focMap[item.productId] = Math.max(0, focMap[item.productId] - item.qty);
+    });
+    return JSON.stringify(result);
+  } catch(e) { return allJson; }
+}
+
 function formatItemsForTable(itemsJson) {
   try {
     const items = JSON.parse(itemsJson);

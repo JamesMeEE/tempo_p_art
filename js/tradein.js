@@ -50,8 +50,9 @@ async function loadTradeins() {
           var tiChange = parseFloat(row[10]) || 0;
           var tiPayInfo = tiPaid > 0 ? formatNumber(tiPaid) + ' ' + (row[8] || 'LAK') : '-';
           var focGoldStr = row[16] ? formatItemsForTable(row[16]) : '-';
+          var pureOldGold = row[16] ? formatItemsForTable(subtractItems(row[2], row[16])) : oldGold;
           var focPremDeduct = row[17] ? formatNumber(row[17]) + ' LAK' : '-';
-          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['F.O.C (Old Gold)', focGoldStr], ['Old Gold', oldGold], ['New Gold', newGold], ['Difference', formatNumber(row[4]) + ' LAK'], ['Premium', formatNumber(premium) + ' LAK'], ['FOC Premium หัก', focPremDeduct], ['Total', formatNumber(row[6]) + ' LAK'], ['Customer Paid', tiPayInfo], ['Change', tiChange > 0 ? formatNumber(tiChange) + ' LAK' : '-'], ['Date', formatDateTime(row[11])], ['Status', status], ['Sale', saleName]]));
+          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['F.O.C (Old Gold)', focGoldStr], ['Old Gold', pureOldGold], ['New Gold', newGold], ['Difference', formatNumber(row[4]) + ' LAK'], ['Premium', formatNumber(premium) + ' LAK'], ['FOC Premium หัก', focPremDeduct], ['Total', formatNumber(row[6]) + ' LAK'], ['Customer Paid', tiPayInfo], ['Change', tiChange > 0 ? formatNumber(tiChange) + ' LAK' : '-'], ['Date', formatDateTime(row[11])], ['Status', status], ['Sale', saleName]]));
           actions = '<button class="btn-action" onclick="viewTransactionDetail(\'Trade-in\',\'' + detail + '\')" style="background:#555;">👁 View</button>';
         }
         
