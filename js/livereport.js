@@ -37,6 +37,12 @@ async function loadLiveReport() {
   var dateFrom = _lrDateFrom;
   var dateTo = _lrDateTo;
 
+  var spinnerHtml = '<div style="text-align:center;padding:30px;"><div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div></div>';
+  ['lrSalesStatus','lrSummaryBoxes','lrSalesPayments','lrBuybackPayments','lrStockSummary','lrGoldTable'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = spinnerHtml;
+  });
+
   try {
     var dbData = await fetchSheetData('_database!A1:M100');
     var sellsData = await fetchSheetData('Sells!A:M');
