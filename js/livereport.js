@@ -7,8 +7,8 @@ function initLiveReportDateFilter() {
   var elTo = document.getElementById('lrDateTo');
   if (elFrom && !elFrom.value) elFrom.value = today;
   if (elTo && !elTo.value) elTo.value = today;
-  _lrDateFrom = today;
-  _lrDateTo = today;
+  _lrDateFrom = elFrom ? elFrom.value : today;
+  _lrDateTo = elTo ? elTo.value : today;
 }
 
 function filterLiveReport() {
