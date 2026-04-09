@@ -350,7 +350,7 @@ function showBillModal(id, type, contentHtml) {
     modal.className = 'modal';
     document.body.appendChild(modal);
   }
-  modal.innerHTML = '<div class="modal-content" style="max-width:520px;"><div class="modal-header"><h3>' + type + ' - ' + id + '</h3><span class="close" onclick="closeModal(\'billDetailModal\')">&times;</span></div><div class="modal-body" style="max-height:70vh;overflow-y:auto;">' + contentHtml + '</div><div class="modal-footer"><button class="btn-secondary" onclick="closeModal(\'billDetailModal\')">ปิด</button></div></div>';
+  modal.innerHTML = '<div class="modal-content" style="max-width:520px;max-height:90vh;overflow-y:auto;"><div class="modal-header"><h3>' + type + ' - ' + id + '</h3><span class="close" onclick="closeModal(\'billDetailModal\')">&times;</span></div><div class="modal-body">' + contentHtml + '</div><div class="modal-footer"><button class="btn-secondary" onclick="closeModal(\'billDetailModal\')">ปิด</button></div></div>';
   openModal('billDetailModal');
 }
 
