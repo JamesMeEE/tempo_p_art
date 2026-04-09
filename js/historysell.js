@@ -19,7 +19,7 @@ async function loadHistorySell() {
 
     var results = await Promise.all([
       fetchSheetData('Sells!A:L'),
-      fetchSheetData('Tradeins!A:R'),
+      fetchSheetData('Tradeins!A:S'),
       fetchSheetData('Exchanges!A:T'),
       fetchSheetData('Withdraws!A:L')
     ]);
@@ -49,6 +49,7 @@ async function loadHistorySell() {
         oldGold: r[16] ? formatItemsForTable(subtractItems(r[2], r[16])) : formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
         focGold: r[16] ? formatItemsForTable(r[16]) : '-',
         focPremDeduct: r[17] ? formatNumber(r[17]) + ' LAK' : '-',
+        focBillRef: r[18] || '-',
         difference: formatNumber(parseFloat(r[4]) || 0), exchangeFee: '-', switchFee: '-',
         premium: formatNumber(calculatePremiumFromItems(r[3])),
         total: parseFloat(r[6]) || 0,
@@ -126,7 +127,7 @@ async function loadHistorySell() {
           } else if (r.type === 'TRADE-IN') {
             detailArr = [
               ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
-              ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', r.oldGold], ['New Gold', r.newGold],
+              ['F.O.C รหัสบิลเก่า', r.focBillRef || '-'], ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', r.oldGold], ['New Gold', r.newGold],
               ['Difference', r.difference],
               ['Premium', r.premium], ['FOC Premium หัก', r.focPremDeduct || '-'],
               ['Total', formatNumber(r.total) + ' LAK'],

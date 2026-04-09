@@ -282,6 +282,35 @@ async function viewBillDetail(id, type) {
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
       html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">น้ำหนัก</div><div style="font-weight:bold;">' + formatWeight(moveRow.goldG || 0) + ' g</div></div>';
       html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">มูลค่า</div><div style="font-weight:bold;color:var(--gold-primary);">' + formatNumber(moveRow.price) + ' LAK</div></div></div>';
+
+      if (moveRow.type === 'STOCK-IN' && moveRow.dir === 'IN') {
+        try {
+          var cbData = await fetchSheetData('CashBank!A:I');
+          if (cbData && cbData.length > 1) {
+            var rateHtml = '<div style="margin-top:12px;padding:12px;background:rgba(33,150,243,0.08);border-radius:8px;border:1px solid rgba(33,150,243,0.2);">';
+            rateHtml += '<div style="font-size:12px;color:#2196f3;margin-bottom:8px;font-weight:bold;">💱 ค่าเงินที่กรอกตอนทำรายการ</div>';
+            var foundRate = false;
+            for (var cb = 1; cb < cbData.length; cb++) {
+              var cbNote = String(cbData[cb][6] || '');
+              if (cbNote.indexOf(id) === -1) continue;
+              var cbType = String(cbData[cb][1] || '').trim();
+              if (cbType.indexOf('FEE') !== -1) continue;
+              var lakMatch = cbNote.match(/\|LAK:(\d+)/);
+              if (!lakMatch) continue;
+              var lakVal = parseFloat(lakMatch[1]) || 0;
+              var absAmt = Math.abs(parseFloat(cbData[cb][2]) || 0);
+              var cur = String(cbData[cb][3] || '').trim();
+              if (absAmt > 0 && lakVal > 0 && cur !== 'LAK') {
+                var rate = Math.round(lakVal / absAmt);
+                rateHtml += '<div style="font-size:13px;padding:3px 0;">' + cur + ': ' + formatNumber(absAmt) + ' × ' + formatNumber(rate) + ' = ' + formatNumber(Math.round(lakVal)) + ' LAK</div>';
+                foundRate = true;
+              }
+            }
+            rateHtml += '</div>';
+            if (foundRate) html += rateHtml;
+          }
+        } catch(e) {}
+      }
     } else {
       html += '<div></div></div><p style="text-align:center;color:var(--text-secondary);">ไม่พบข้อมูลเพิ่มเติม</p>';
     }

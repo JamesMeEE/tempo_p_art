@@ -2,7 +2,7 @@ async function loadTradeins() {
   try {
     var tbody = document.getElementById('tradeinTable');
     tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;"><div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div></td></tr>';
-    const data = await fetchSheetData('Tradeins!A:R');
+    const data = await fetchSheetData('Tradeins!A:S');
     
     let filteredData = data.slice(1);
     
@@ -52,7 +52,8 @@ async function loadTradeins() {
           var focGoldStr = row[16] ? formatItemsForTable(row[16]) : '-';
           var pureOldGold = row[16] ? formatItemsForTable(subtractItems(row[2], row[16])) : oldGold;
           var focPremDeduct = row[17] ? formatNumber(row[17]) + ' LAK' : '-';
-          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['F.O.C (Old Gold)', focGoldStr], ['Old Gold', pureOldGold], ['New Gold', newGold], ['Difference', formatNumber(row[4]) + ' LAK'], ['Premium', formatNumber(premium) + ' LAK'], ['FOC Premium หัก', focPremDeduct], ['Total', formatNumber(row[6]) + ' LAK'], ['Customer Paid', tiPayInfo], ['Change', tiChange > 0 ? formatNumber(tiChange) + ' LAK' : '-'], ['Date', formatDateTime(row[11])], ['Status', status], ['Sale', saleName]]));
+          var focBillRef = row[18] || '-';
+          var detail = encodeURIComponent(JSON.stringify([['Transaction ID', row[0]], ['Phone', row[1]], ['F.O.C รหัสบิลเก่า', focBillRef], ['F.O.C (Old Gold)', focGoldStr], ['Old Gold', pureOldGold], ['New Gold', newGold], ['Difference', formatNumber(row[4]) + ' LAK'], ['Premium', formatNumber(premium) + ' LAK'], ['FOC Premium หัก', focPremDeduct], ['Total', formatNumber(row[6]) + ' LAK'], ['Customer Paid', tiPayInfo], ['Change', tiChange > 0 ? formatNumber(tiChange) + ' LAK' : '-'], ['Date', formatDateTime(row[11])], ['Status', status], ['Sale', saleName]]));
           actions = '<button class="btn-action" onclick="viewTransactionDetail(\'Trade-in\',\'' + detail + '\')" style="background:#555;">👁 View</button>';
         }
         
@@ -242,11 +243,13 @@ async function calculateTradein() {
   try {
     _isSubmitting = true;
     showLoading();
+    var focBillRef = document.getElementById('tradeinFocBillRef') ? document.getElementById('tradeinFocBillRef').value.trim() : '';
     var result = await callAppsScript('ADD_TRADEIN', {
       phone: phone,
       oldGold: JSON.stringify(allOldGold),
       newGold: JSON.stringify(newGold),
       focGold: JSON.stringify(focGold),
+      focBillRef: focBillRef,
       difference: difference,
       premium: premium,
       focPremiumDeduct: Math.min(focPremium, newPremium),
@@ -260,6 +263,7 @@ async function calculateTradein() {
       showToast('✅ สร้างรายการแลกเปลี่ยนสำเร็จ!');
       closeModal('tradeinModal');
       document.getElementById('tradeinPhone').value = '';
+      if (document.getElementById('tradeinFocBillRef')) document.getElementById('tradeinFocBillRef').value = '';
       document.getElementById('tradeinFocGold').innerHTML = '';
       document.getElementById('tradeinOldGold').innerHTML = '';
       document.getElementById('tradeinNewGold').innerHTML = '';
