@@ -7,8 +7,8 @@ function initLiveReportDateFilter() {
   var elTo = document.getElementById('lrDateTo');
   if (elFrom && !elFrom.value) elFrom.value = today;
   if (elTo && !elTo.value) elTo.value = today;
-  _lrDateFrom = today;
-  _lrDateTo = today;
+  _lrDateFrom = elFrom ? elFrom.value : today;
+  _lrDateTo = elTo ? elTo.value : today;
 }
 
 function filterLiveReport() {
@@ -36,6 +36,12 @@ async function loadLiveReport() {
 
   var dateFrom = _lrDateFrom;
   var dateTo = _lrDateTo;
+
+  var spinnerHtml = '<div style="text-align:center;padding:30px;"><div style="display:inline-block;width:24px;height:24px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div></div>';
+  ['lrSalesStatus','lrSummaryBoxes','lrSalesPayments','lrBuybackPayments','lrStockSummary','lrGoldTable'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = spinnerHtml;
+  });
 
   try {
     var dbData = await fetchSheetData('_database!A1:M100');
@@ -116,13 +122,6 @@ function lrParseDate(dateVal) {
         return new Date(year, month, day, parseInt(tp[0]) || 0, parseInt(tp[1]) || 0, parseInt(tp[2]) || 0);
       }
       return new Date(year, month, day);
-    }
-    if (s.includes('T') && s.includes('Z')) {
-      var utc = new Date(s);
-      if (!isNaN(utc.getTime())) {
-        var local = new Date(utc.getTime() + 7 * 60 * 60000);
-        return new Date(local.getFullYear(), local.getMonth(), local.getDate(), local.getHours(), local.getMinutes(), local.getSeconds());
-      }
     }
     var isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (isoMatch) {
