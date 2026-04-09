@@ -248,13 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fromInput && toInput) {
     fromInput.addEventListener('change', function() {
       buybackDateFrom = this.value;
-      if (buybackDateFrom && !buybackDateTo) { buybackDateTo = buybackDateFrom; toInput.value = buybackDateTo; }
+      buybackDateTo = toInput.value || buybackDateFrom;
+      if (!toInput.value) toInput.value = buybackDateTo;
       if (buybackDateFrom && buybackDateTo) loadBuybacks();
     });
     
     toInput.addEventListener('change', function() {
       buybackDateTo = this.value;
-      if (buybackDateTo && !buybackDateFrom) { buybackDateFrom = buybackDateTo; fromInput.value = buybackDateFrom; }
+      buybackDateFrom = fromInput.value || buybackDateTo;
+      if (!fromInput.value) fromInput.value = buybackDateFrom;
       if (buybackDateFrom && buybackDateTo) loadBuybacks();
     });
   }
