@@ -46,7 +46,8 @@ async function loadHistorySell() {
       var tChange = parseFloat(r[10]) || 0;
       all.push({
         type: 'TRADE-IN', id: r[0], phone: r[1],
-        oldGold: r[16] ? formatItemsForTable(subtractItems(r[2], r[16])) : formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
+        oldGold: formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
+        oldGoldRaw: r[2],
         focGold: r[16] ? formatItemsForTable(r[16]) : '-',
         focPremDeduct: r[17] ? formatNumber(r[17]) + ' LAK' : '-',
         focBillRef: r[18] || '-',
@@ -125,9 +126,10 @@ async function loadHistorySell() {
               ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
             ];
           } else if (r.type === 'TRADE-IN') {
+            var pureOld = r.raw && r.raw[16] ? formatItemsForTable(subtractItems(r.oldGoldRaw, r.raw[16])) : r.oldGold;
             detailArr = [
               ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
-              ['F.O.C รหัสบิลเก่า', r.focBillRef || '-'], ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', r.oldGold], ['New Gold', r.newGold],
+              ['F.O.C รหัสบิลเก่า', r.focBillRef || '-'], ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', pureOld], ['New Gold', r.newGold],
               ['Difference', r.difference],
               ['Premium', r.premium], ['FOC Premium หัก', r.focPremDeduct || '-'],
               ['Total', formatNumber(r.total) + ' LAK'],
