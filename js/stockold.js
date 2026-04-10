@@ -300,8 +300,8 @@ async function viewBillDetail(id, type) {
               var lakVal = parseFloat(lakMatch[1]) || 0;
               var absAmt = Math.abs(parseFloat(cbData[cb][2]) || 0);
               var cur = String(cbData[cb][3] || '').trim();
-              if (absAmt > 0 && lakVal > 0 && cur !== 'LAK') {
-                var rate = Math.round(lakVal / absAmt);
+              if (absAmt > 0 && lakVal > 0) {
+                var rate = cur === 'LAK' ? 1 : Math.round(lakVal / absAmt);
                 rateHtml += '<div style="font-size:13px;padding:3px 0;">' + cur + ': ' + formatNumber(absAmt) + ' × ' + formatNumber(rate) + ' = ' + formatNumber(Math.round(lakVal)) + ' LAK</div>';
                 foundRate = true;
               }
