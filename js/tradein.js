@@ -169,7 +169,7 @@ function updateTradeinTotal() {
   var diffValue = 0;
   if (newWeight > totalOldWeight && currentPricing.sell1Baht > 0) {
     diffValue = (newWeight - totalOldWeight) * currentPricing.sell1Baht;
-    total = roundTo1000(diffValue + premium);
+    total = roundTo1000(Math.round(diffValue) + premium);
   }
 
   var el = document.getElementById('tradeinPrice');
@@ -236,7 +236,7 @@ async function calculateTradein() {
   }
 
   var difference = (newWeight - totalOldWeight) * currentPricing.sell1Baht;
-  var total = roundTo1000(difference + premium);
+  var total = roundTo1000(Math.round(difference) + premium);
 
   var allOldGold = mergeItems(focGold.concat(oldGold));
 
