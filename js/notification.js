@@ -15,9 +15,12 @@ function stopNotificationPolling() {
 
 async function pollAll() {
   await batchFetchAll();
+  await fetchExchangeRates();
+  await fetchCurrentPricing();
   await pollNotifications();
   if (typeof checkPendingClose === 'function') checkPendingClose();
   if (typeof loadPendingTransferCount === 'function') loadPendingTransferCount();
+  if (typeof loadSalesInfoBar === 'function') loadSalesInfoBar();
 }
 
 async function pollNotifications() {
