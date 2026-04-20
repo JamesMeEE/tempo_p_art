@@ -21,7 +21,7 @@ var ALL_RANGES = [
 
 async function batchFetchAll() {
   var ranges = ALL_RANGES.map(function(r) { return 'ranges=' + encodeURIComponent(r); }).join('&');
-  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG.SHEET_ID + '/values:batchGet?' + ranges + '&key=' + CONFIG.API_KEY + '&_t=' + Date.now();
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG.SHEET_ID + '/values:batchGet?' + ranges + '&key=' + CONFIG.API_KEY;
   try {
     var response = await fetch(url);
     if (!response.ok) return;
@@ -46,7 +46,7 @@ async function fetchSheetData(range) {
   if (_sheetCache[range] && (now - _sheetCache[range].time) < _cacheTTL) {
     return _sheetCache[range].data;
   }
-  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG.SHEET_ID + '/values/' + encodeURIComponent(range) + '?key=' + CONFIG.API_KEY + '&_t=' + Date.now();
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG.SHEET_ID + '/values/' + encodeURIComponent(range) + '?key=' + CONFIG.API_KEY;
   var response = await fetch(url);
   if (!response.ok) {
     return _sheetCache[range] ? _sheetCache[range].data : [];
