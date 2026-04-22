@@ -74,7 +74,7 @@ async function loadDashboard() {
     document.getElementById('dashPLBox').style.display = '';
     document.getElementById('dashWACBox').style.display = '';
     document.getElementById('dashReportBox').style.display = '';
-    plRow.style.display = '';
+    plRow.style.display = 'grid';
     plRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
   }
 
