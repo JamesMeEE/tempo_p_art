@@ -295,10 +295,6 @@ function renderStockInBank() {
       '</div>' +
       '<div style="display:flex;gap:10px;align-items:center;">' +
       '<input type="number" class="form-input" placeholder="Amount" value="' + (item.amount || '') + '" style="flex:1;" oninput="updateStockInBankAmount(' + item.id + ',this.value)">' +
-      '</div>' +
-      '<div style="display:flex;gap:10px;align-items:center;margin-top:8px;">' +
-      '<span style="font-size:12px;color:var(--text-secondary);white-space:nowrap;">Fee (LAK)</span>' +
-      '<input type="number" class="form-input" placeholder="0" value="' + (item.fee || '') + '" style="flex:1;" oninput="updateStockInBankFee(' + item.id + ',this.value)">' +
       '</div>' + rateHtml + '</div>';
   }).join('');
   updateStockInRemain();

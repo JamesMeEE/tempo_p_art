@@ -67,6 +67,12 @@ async function loadHistorySell() {
       all.push({
         type: 'EXCHANGE', id: r[0], phone: r[1],
         oldGold: formatItemsForTable(r[2]), newGold: formatItemsForTable(r[3]),
+        oldGoldRaw: r[2],
+        switchOldGold: r[14] ? formatItemsForTable(r[14]) : '-',
+        switchOldRaw: r[14] || '',
+        freeExOldGold: r[16] ? formatItemsForTable(r[16]) : '-',
+        freeExOldRaw: r[16] || '',
+        freeExBill: r[17] || '-',
         difference: '-',
         exchangeFee: formatNumber(parseFloat(r[4]) || 0),
         switchFee: switchFeeVal > 0 ? formatNumber(switchFeeVal) : '-',
@@ -132,6 +138,21 @@ async function loadHistorySell() {
               ['F.O.C รหัสบิลเก่า', r.focBillRef || '-'], ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', pureOld], ['New Gold', r.newGold],
               ['Difference', r.difference],
               ['Premium', r.premium], ['FOC Premium หัก', r.focPremDeduct || '-'],
+              ['Total', formatNumber(r.total) + ' LAK'],
+              ['Customer Paid', r.paid || '-'], ['Change', r.change || '-'],
+              ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
+            ];
+          } else if (r.type === 'EXCHANGE') {
+            var pureExOld = r.oldGoldRaw || r.oldGold;
+            if (r.switchOldRaw) pureExOld = subtractItems(pureExOld, r.switchOldRaw);
+            if (r.freeExOldRaw) pureExOld = subtractItems(pureExOld, r.freeExOldRaw);
+            detailArr = [
+              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Old Gold (Exchange)', formatItemsForTable(pureExOld)], ['New Gold', r.newGold],
+              ['Exchange Fee', r.exchangeFee],
+              ['Switch Old Gold', r.switchOldGold || '-'], ['Switch Fee', r.switchFee],
+              ['Free Ex Old Gold', r.freeExOldGold || '-'], ['Free Ex Bill', r.freeExBill || '-'],
+              ['Premium', r.premium],
               ['Total', formatNumber(r.total) + ' LAK'],
               ['Customer Paid', r.paid || '-'], ['Change', r.change || '-'],
               ['Date', formatDateTime(r.date)], ['Status', r.status], ['Sale', r.sale]
