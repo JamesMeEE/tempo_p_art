@@ -205,6 +205,13 @@ async function calculateTradein() {
     alert('กรุณาเลือกทองใหม่');
     return;
   }
+  if (focGold.length > 0) {
+    var focRef = document.getElementById('tradeinFocBillRef') ? document.getElementById('tradeinFocBillRef').value.trim() : '';
+    if (!focRef) {
+      alert('กรุณากรอกรหัสบิลเก่าสำหรับ F.O.C');
+      return;
+    }
+  }
 
   var focWeight = 0, oldWeight = 0, newWeight = 0;
   var focPremium = 0, newPremium = 0;
