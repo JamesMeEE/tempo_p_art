@@ -120,6 +120,10 @@ async function calculateWithdraw() {
     alert('กรุณากรอกเบอร์โทร 10 หลัก');
     return;
   }
+  if (!withdrawCode) {
+    alert('กรุณากรอกรหัสถอน');
+    return;
+  }
 
   const products = [];
   document.querySelectorAll('#withdrawProducts .product-row').forEach(row => {
