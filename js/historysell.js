@@ -148,7 +148,7 @@ async function loadHistorySell() {
             if (r.freeExOldRaw) pureExOld = subtractItems(pureExOld, r.freeExOldRaw);
             detailArr = [
               ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
-              ['Old Gold (Exchange)', formatItemsForTable(pureExOld)], ['New Gold', r.newGold],
+              ['New Gold', r.newGold], ['Old Gold (Exchange)', formatItemsForTable(pureExOld)],
               ['Exchange Fee', r.exchangeFee],
               ['Switch Old Gold', r.switchOldGold || '-'], ['Switch Fee', r.switchFee],
               ['Free Ex Old Gold', r.freeExOldGold || '-'], ['Free Ex Bill', r.freeExBill || '-'],
