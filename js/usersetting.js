@@ -92,10 +92,6 @@ async function saveUser() {
 
 async function deleteUser(sheetRow, usernameEnc) {
   var username = decodeURIComponent(usernameEnc);
-  if (username === currentUser.username) {
-    alert('❌ ไม่สามารถลบตัวเองได้');
-    return;
-  }
   if (!confirm('ยืนยันลบ user "' + username + '" ?')) return;
   try {
     showLoading();

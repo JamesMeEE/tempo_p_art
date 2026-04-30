@@ -161,14 +161,14 @@ async function enterApp() {
   document.getElementById('userName').textContent = currentUser.nickname || currentUser.role;
   document.getElementById('userRole').textContent = currentUser.role;
   document.getElementById('userAvatar').textContent = (currentUser.nickname || currentUser.role)[0];
-  document.body.className = 'role-' + currentUser.username;
+  var roleClass = currentUser.role === 'Manager' ? 'role-m' : currentUser.role === 'Admin' ? 'role-a' : 'role-u';
+  document.body.className = roleClass;
 
   applyRoleUI();
 
   await batchFetchAll();
   await fetchExchangeRates();
   await fetchCurrentPricing();
-  if (typeof loadSalesInfoBar === 'function') loadSalesInfoBar();
   if (typeof checkAndResumePendingClose === 'function') checkAndResumePendingClose();
   callAppsScript('INIT_STOCK').catch(function(){});
   startNotificationPolling();
