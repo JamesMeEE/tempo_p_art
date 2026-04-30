@@ -53,7 +53,7 @@ function editUser(sheetRow, roleEnc, nameEnc, usernameEnc, passEnc) {
   document.getElementById('userFormName').value = decodeURIComponent(nameEnc);
   document.getElementById('userFormUsername').value = decodeURIComponent(usernameEnc);
   document.getElementById('userFormPass').value = decodeURIComponent(passEnc);
-  document.getElementById('userFormUsername').disabled = true;
+  document.getElementById('userFormUsername').disabled = false;
   openModal('addUserModal');
 }
 
