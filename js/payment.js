@@ -234,6 +234,7 @@ function updatePaymentSummary() {
 
     if (!isBuyback) {
       var ch = Math.max(0, change);
+      if (ch < 1000) ch = 0;
       changeEl.textContent = formatNumber(ch) + ' LAK';
 
       var overLimit = false;
@@ -308,6 +309,7 @@ async function confirmMultiPayment() {
   var change = 0;
   if (currentPaymentData.type !== 'BUYBACK') {
     change = Math.max(0, totalPaid - total);
+    if (change < 1000) change = 0;
   }
 
   if (change > 0) {

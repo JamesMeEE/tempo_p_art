@@ -283,6 +283,14 @@ async function viewBillDetail(id, type) {
       html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">น้ำหนัก</div><div style="font-weight:bold;">' + formatWeight(moveRow.goldG || 0) + ' g</div></div>';
       html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">มูลค่า</div><div style="font-weight:bold;color:var(--gold-primary);">' + formatNumber(moveRow.price) + ' LAK</div></div></div>';
 
+      var priceVal = parseFloat(moveRow.price) || 0;
+      var goldGVal = parseFloat(moveRow.goldG) || 0;
+      var perG = goldGVal > 0 ? priceVal / goldGVal : 0;
+      var perBaht = perG * 15;
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">';
+      html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">มูลค่า/g</div><div style="font-weight:bold;color:#2196f3;">' + formatNumber(Math.round(perG)) + ' LAK</div></div>';
+      html += '<div class="stat-card" style="padding:10px;"><div style="color:var(--text-secondary);font-size:11px;">มูลค่า/บาท</div><div style="font-weight:bold;color:#2196f3;">' + formatNumber(Math.round(perBaht)) + ' LAK</div></div></div>';
+
       if (moveRow.type === 'STOCK-IN' && moveRow.dir === 'IN') {
         try {
           var cbData = await fetchSheetData('CashBank!A:I');
@@ -302,7 +310,10 @@ async function viewBillDetail(id, type) {
               var cur = String(cbData[cb][3] || '').trim();
               if (absAmt > 0 && lakVal > 0) {
                 var rate = cur === 'LAK' ? 1 : Math.round(lakVal / absAmt);
-                rateHtml += '<div style="font-size:13px;padding:3px 0;">' + cur + ': ' + formatNumber(absAmt) + ' × ' + formatNumber(rate) + ' = ' + formatNumber(Math.round(lakVal)) + ' LAK</div>';
+                var cbMethod = String(cbData[cb][4] || '').trim();
+                var cbBank = String(cbData[cb][5] || '').trim();
+                var methodLabel = cbMethod === 'Bank' ? '🏦 ' + (cbBank || 'Bank') : '💵 Cash';
+                rateHtml += '<div style="font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:var(--text-secondary);font-size:11px;">' + methodLabel + '</span><br>' + cur + ': ' + formatCurrency(absAmt, cur) + ' × ' + formatNumber(rate) + ' = ' + formatNumber(Math.round(lakVal)) + ' LAK</div>';
                 foundRate = true;
               }
             }
