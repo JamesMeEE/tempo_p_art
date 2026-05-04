@@ -754,11 +754,13 @@ body.role-a button.manager-only {
     border-radius: 8px;
     white-space: nowrap;
   }
-  #salesInfoContent > div[style*="grid-template-columns: repeat(3"] {
+  #salesInfoContent > div[style*="grid-template-columns: repeat(3"],
+  #salesInfoContent > div[style*="grid-template-columns:repeat(3"] {
     grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
   }
-  #salesInfoContent > div[style*="grid-template-columns: 1fr 1fr"] {
+  #salesInfoContent > div[style*="grid-template-columns: 1fr 1fr"],
+  #salesInfoContent > div[style*="grid-template-columns:1fr 1fr"] {
     grid-template-columns: 1fr !important;
   }
   #dashboard div[style*="grid-template-columns: repeat(4"] {
@@ -949,17 +951,23 @@ body.role-a button.manager-only {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
   }
-  #accountingStats div[style*="grid-template-columns: repeat(4"] {
+  #accountingStats div[style*="grid-template-columns: repeat(4"],
+  #accountingStats div[style*="grid-template-columns:repeat(4"] {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
   }
-  #accountingStats div[style*="grid-template-columns: repeat(3"] {
+  #accountingStats div[style*="grid-template-columns: repeat(3"],
+  #accountingStats div[style*="grid-template-columns:repeat(3"] {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
   }
-  #accountingStats div[style*="grid-template-columns: repeat(2"] {
+  #accountingStats div[style*="grid-template-columns: repeat(2"],
+  #accountingStats div[style*="grid-template-columns:repeat(2"] {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
+  }
+  #accountingStats div[style*="grid-template-columns:1fr"] {
+    grid-template-columns: 1fr !important;
   }
   #accounting div[style*="display: flex"][style*="gap: 10px"] {
     flex-wrap: wrap;
