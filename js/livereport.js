@@ -525,7 +525,7 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
       var val = totals[m][c];
       grandTotal[c] += val;
       var color = val > 0 ? '#4caf50' : (val < 0 ? '#f44336' : 'var(--text-secondary)');
-      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatNumber(Math.round(val)) + '</td>';
+      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatCurrency(val, c) + '</td>';
     });
     html += '</tr>';
   });
@@ -535,7 +535,7 @@ function renderLRPaymentSummary(containerId, title, types, users, salesUserData,
   currencies.forEach(function(c) {
     var val = grandTotal[c];
     var color = val > 0 ? '#4caf50' : (val < 0 ? '#f44336' : 'var(--text-secondary)');
-    html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatNumber(Math.round(val)) + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatCurrency(val, c) + '</td>';
   });
   html += '</tr>';
   html += '</tbody></table></div></div>';
@@ -603,7 +603,7 @@ function renderLRBuybackPayments(cashbankData, dateFrom, dateTo) {
       var val = totals[m][c];
       grandTotal[c] += val;
       var color = val > 0 ? '#f44336' : 'var(--text-secondary)';
-      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatNumber(Math.round(val)) + '</td>';
+      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatCurrency(val, c) + '</td>';
     });
     html += '</tr>';
   });
@@ -621,7 +621,7 @@ function renderLRBuybackPayments(cashbankData, dateFrom, dateTo) {
     currencies.forEach(function(c) {
       var val = feeGrand[c];
       var color = val > 0 ? '#ff9800' : 'var(--text-secondary)';
-      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatNumber(Math.round(val)) + '</td>';
+      html += '<td style="' + tdStyle + 'color:' + color + ';">' + formatCurrency(val, c) + '</td>';
     });
     html += '</tr>';
   }
@@ -631,7 +631,7 @@ function renderLRBuybackPayments(cashbankData, dateFrom, dateTo) {
   currencies.forEach(function(c) {
     var val = grandTotal[c] + feeGrand[c];
     var color = val > 0 ? '#f44336' : 'var(--text-secondary)';
-    html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatNumber(Math.round(val)) + '</td>';
+    html += '<td style="' + tdStyle + 'color:' + color + ';font-weight:700;">' + formatCurrency(val, c) + '</td>';
   });
   html += '</tr>';
   html += '</tbody></table></div></div>';

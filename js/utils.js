@@ -31,6 +31,16 @@ function formatNumber(num) {
   return new Intl.NumberFormat('en-US').format(Math.round(n));
 }
 
+function formatCurrency(amount, currency) {
+  var n = typeof amount === 'string' ? parseFloat(amount.replace(/,/g, '')) : amount;
+  if (isNaN(n)) n = 0;
+  var cur = String(currency || '').trim().toUpperCase();
+  if (cur === 'THB' || cur === 'USD') {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+  }
+  return new Intl.NumberFormat('en-US').format(Math.round(n));
+}
+
 function formatWeight(num) {
   return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
 }
@@ -570,7 +580,7 @@ async function viewTransactionDetail(type, jsonData) {
         var sign = amt < 0 ? '' : '+';
         payHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
         payHtml += '<span style="font-size:13px;">' + icon + ' ' + label + '</span>';
-        payHtml += '<span style="font-size:13px;font-weight:bold;color:' + color + ';">' + sign + formatNumber(amt) + ' ' + cur + '</span>';
+        payHtml += '<span style="font-size:13px;font-weight:bold;color:' + color + ';">' + sign + formatCurrency(amt, cur) + ' ' + cur + '</span>';
         payHtml += '</div>';
       });
 

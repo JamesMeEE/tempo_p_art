@@ -210,14 +210,14 @@ async function loadDashDB(ids, dayStart, dayEnd) {
     document.getElementById('dashCashBox').innerHTML =
       '<h3 style="color:var(--gold-primary);margin-bottom:10px;">💵 CASH</h3>' +
       '<p style="font-size:16px;margin:3px 0;">' + formatNumber(cash.LAK) + ' <span style="font-size:12px;">LAK</span></p>' +
-      '<p style="font-size:16px;margin:3px 0;">' + formatNumber(cash.THB) + ' <span style="font-size:12px;">THB</span></p>' +
-      '<p style="font-size:16px;margin:3px 0;">' + formatNumber(cash.USD) + ' <span style="font-size:12px;">USD</span></p>';
+      '<p style="font-size:16px;margin:3px 0;">' + formatCurrency(cash.THB,'THB') + ' <span style="font-size:12px;">THB</span></p>' +
+      '<p style="font-size:16px;margin:3px 0;">' + formatCurrency(cash.USD,'USD') + ' <span style="font-size:12px;">USD</span></p>';
 
     document.getElementById('dashBankBox').innerHTML =
       '<h3 style="color:var(--gold-primary);margin-bottom:10px;">🏦 BANK</h3>' +
       '<p style="font-size:16px;margin:3px 0;">' + formatNumber(bank.LAK) + ' <span style="font-size:12px;">LAK</span></p>' +
-      '<p style="font-size:16px;margin:3px 0;">' + formatNumber(bank.THB) + ' <span style="font-size:12px;">THB</span></p>' +
-      '<p style="font-size:16px;margin:3px 0;">' + formatNumber(bank.USD) + ' <span style="font-size:12px;">USD</span></p>';
+      '<p style="font-size:16px;margin:3px 0;">' + formatCurrency(bank.THB,'THB') + ' <span style="font-size:12px;">THB</span></p>' +
+      '<p style="font-size:16px;margin:3px 0;">' + formatCurrency(bank.USD,'USD') + ' <span style="font-size:12px;">USD</span></p>';
 
     var totalGoldG = newStock.goldG + oldStock.goldG;
     var totalCashLAK = cash.LAK + bank.LAK;
@@ -232,8 +232,8 @@ async function loadDashDB(ids, dayStart, dayEnd) {
     document.getElementById('dashTotalCashBox').innerHTML =
       '<h3 style="color:var(--gold-primary);margin-bottom:10px;">TOTAL CASH + BANK</h3>' +
       '<p style="font-size:18px;margin:5px 0;">' + formatNumber(totalCashLAK) + ' <span style="font-size:12px;">LAK</span></p>' +
-      '<p style="font-size:18px;margin:3px 0;">' + formatNumber(totalCashTHB) + ' <span style="font-size:12px;">THB</span></p>' +
-      '<p style="font-size:18px;margin:3px 0;">' + formatNumber(totalCashUSD) + ' <span style="font-size:12px;">USD</span></p>';
+      '<p style="font-size:18px;margin:3px 0;">' + formatCurrency(totalCashTHB,'THB') + ' <span style="font-size:12px;">THB</span></p>' +
+      '<p style="font-size:18px;margin:3px 0;">' + formatCurrency(totalCashUSD,'USD') + ' <span style="font-size:12px;">USD</span></p>';
   } catch(e) {
     console.error('Error loading dashboard DB:', e);
   }
