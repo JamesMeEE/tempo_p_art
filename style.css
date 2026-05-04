@@ -706,33 +706,243 @@ body.role-a button.manager-only {
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 20px;
-  }
-  
   header {
-    padding: 15px 20px;
+    padding: 12px 16px;
   }
-  
+
+  .header-content {
+    gap: 8px;
+  }
+
+  .logo .logo-icon {
+    font-size: 24px;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+  }
+
+  .logo-text p {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .logo {
+    gap: 8px;
+  }
+
+  .user-info {
+    gap: 8px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .user-name {
+    font-size: 12px;
+  }
+
+  .user-role {
+    font-size: 10px;
+  }
+
+  .container {
+    padding: 16px 12px;
+  }
+
+  .navigation {
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .nav-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
   .dashboard-stats {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
-  
+
   .grid {
     grid-template-columns: 1fr;
   }
-  
-  .navigation {
-    overflow-x: auto;
-    flex-wrap: nowrap;
+
+  .stat-card {
+    padding: 16px;
+    border-radius: 12px;
   }
-  
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+
   table {
+    font-size: 11px;
+    min-width: 600px;
+  }
+
+  th, td {
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+
+  .modal-content {
+    padding: 20px 16px;
+    border-radius: 14px;
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .modal-large {
+    width: 95%;
+  }
+
+  .modal-header {
+    margin-bottom: 16px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+
+  .modal-footer {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .modal-footer button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
     font-size: 12px;
   }
-  
+
+  .form-input, .form-select {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .btn-primary, .btn-secondary, .btn-action {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .product-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .product-row select {
+    flex: 1 1 100%;
+  }
+
+  .product-row input {
+    flex: 1;
+  }
+
+  #salesInfoBar .salesInfoContent > div {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  #livereport .table-container {
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+
+  #historysell {
+    margin-left: -12px;
+    margin-right: -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .date-filter {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .date-filter input[type="date"] {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .btn-danger, .btn-remove {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  h2, h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 10px 12px;
+  }
+
+  .logo-text h1 {
+    font-size: 16px;
+  }
+
+  .logo-text p {
+    display: none;
+  }
+
+  .user-details {
+    display: none;
+  }
+
+  .container {
+    padding: 12px 8px;
+  }
+
+  .navigation {
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .nav-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .modal-content {
+    padding: 16px 12px;
+    width: 98%;
+  }
+
+  table {
+    font-size: 10px;
+  }
+
   th, td {
-    padding: 12px 10px;
+    padding: 8px 6px;
+  }
+
+  .stat-card {
+    padding: 12px;
   }
 }
 
