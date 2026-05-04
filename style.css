@@ -945,6 +945,30 @@ body.role-a button.manager-only {
     font-size: 12px;
     padding: 7px 8px;
   }
+  #pricerate div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  #accountingStats div[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  #accountingStats div[style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  #accountingStats div[style*="grid-template-columns: repeat(2"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  #accounting div[style*="display: flex"][style*="gap: 10px"] {
+    flex-wrap: wrap;
+  }
+  #accounting .form-input[style*="width: 150px"] {
+    width: auto !important;
+    flex: 1;
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 480px) {
