@@ -1,5 +1,5 @@
 var _cashbankAllRows = [];
-var _cashbankFilteredTypes = ['CASH_IN', 'CASH_OUT', 'BANK_IN', 'BANK_OUT', 'BANK_DEPOSIT', 'BANK_WITHDRAW', 'OTHER_INCOME', 'OTHER_EXPENSE'];
+var _cashbankFilteredTypes = ['CASH_IN', 'CASH_OUT', 'BANK_IN', 'BANK_OUT', 'BANK_DEPOSIT', 'BANK_WITHDRAW', 'OTHER_INCOME', 'OTHER_EXPENSE', 'OPEN_SHIFT'];
 
 async function loadCashBank() {
   try {

@@ -406,7 +406,7 @@ function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesDa
 
   html += '<div style="' + boxStyle + '">';
   html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">⚖ NET SELL</h3>';
-  html += '<p style="font-size:24px;margin:8px 0;font-weight:bold;color:' + netColor + ';">' + netSellBaht.toFixed(2) + ' <span style="font-size:13px;">บาท</span></p>';
+  html += '<p style="font-size:24px;margin:8px 0;font-weight:bold;color:' + netColor + ';">' + netSellBaht.toFixed(3) + ' <span style="font-size:13px;">บาท</span></p>';
   html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:11px;color:var(--text-secondary);line-height:1.6;">';
   html += 'New Out ทั้งหมด: ' + totalNewGOut.toFixed(2) + ' g<br>';
   html += 'Old In ทั้งหมด: ' + totalOldGIn.toFixed(2) + ' g<br>';
@@ -416,7 +416,7 @@ function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesDa
   html += '<div style="' + boxStyle + '">';
   html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">💰 SALES</h3>';
   html += '<p style="font-size:18px;margin:3px 0;font-weight:bold;">Total: ' + formatNumber(Math.round(salesTotal)) + ' <span style="font-size:12px;">LAK</span></p>';
-  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + salesGoldBaht.toFixed(2) + '</b> <span style="font-size:11px;">บาท</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + salesGoldBaht.toFixed(3) + '</b> <span style="font-size:11px;">บาท</span></p>';
   html += '<p style="font-size:13px;margin:3px 0;">Total/Amount: <b>' + formatNumber(salesTotalPerBaht) + '</b> <span style="font-size:11px;">LAK/บาท</span></p>';
   html += '<p style="font-size:11px;color:var(--text-secondary);margin:2px 0;">Tx: <b>' + salesTotalTx + '</b></p>';
   html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:11px;color:var(--text-secondary);line-height:1.6;">';
@@ -434,7 +434,7 @@ function renderLRSummaryBoxes(sellsData, tradeinsData, exchangesData, switchesDa
   html += '<div style="' + boxStyle + '">';
   html += '<h3 style="color:var(--gold-primary);margin-bottom:8px;">🔄 BUYBACK</h3>';
   html += '<p style="font-size:18px;margin:3px 0;font-weight:bold;">Total: ' + formatNumber(Math.round(bbMoney)) + ' <span style="font-size:12px;">LAK</span></p>';
-  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + bbGoldBaht.toFixed(2) + '</b> <span style="font-size:11px;">บาท</span></p>';
+  html += '<p style="font-size:13px;margin:3px 0;">GOLD Amount: <b>' + bbGoldBaht.toFixed(3) + '</b> <span style="font-size:11px;">บาท</span></p>';
   html += '<p style="font-size:13px;margin:3px 0;">Total/Amount: <b>' + formatNumber(bbTotalPerBaht) + '</b> <span style="font-size:11px;">LAK/บาท</span></p>';
   html += '<p style="font-size:11px;color:var(--text-secondary);margin:2px 0;">Tx: <b>' + buybackRows.length + '</b></p>';
   html += '<div style="border-top:1px solid var(--border-color);margin:6px 0;padding-top:6px;font-size:12px;">';
