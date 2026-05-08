@@ -276,10 +276,18 @@ async function confirmOpenShift() {
 async function checkSession() {
   if (!currentUser || !currentUser.sessionToken) return;
   try {
-    var result = await callAppsScript('CHECK_SESSION', { username: currentUser.username, token: currentUser.sessionToken });
-    if (!result.success && result.message === 'SESSION_EXPIRED') {
-      alert('บัญชีนี้ถูกเข้าสู่ระบบที่อื่น คุณจะถูกออกจากระบบ');
-      logout();
+    var dbData = await fetchSheetData('_database!A1:M100');
+    if (dbData && dbData.length > 33) {
+      for (var i = 33; i < dbData.length; i++) {
+        if (String(dbData[i][2] || '').trim() === currentUser.username) {
+          var storedToken = String(dbData[i][4] || '').trim();
+          if (storedToken && storedToken !== currentUser.sessionToken) {
+            alert('บัญชีนี้ถูกเข้าสู่ระบบที่อื่น คุณจะถูกออกจากระบบ');
+            logout();
+          }
+          return;
+        }
+      }
     }
   } catch(e) {}
 }

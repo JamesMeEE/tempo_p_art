@@ -845,14 +845,14 @@ function printLiveReport() {
     '.print-header { text-align: center; border-bottom: 3px solid #b8860b; padding-bottom: 20px; margin-bottom: 30px; }',
     '.print-header h1 { color: #b8860b; font-size: 28px; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }',
     '.print-header .subtitle { color: #666; font-size: 13px; }',
-    '.print-section { margin-bottom: 25px; }',
+    '.print-section { margin-bottom: 25px; page-break-inside: avoid; }',
     'h3 { color: #b8860b !important; font-size: 15px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e0c878; }',
-    'table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; }',
+    'table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; page-break-inside: avoid; }',
     'thead th { background: #b8860b !important; color: #fff !important; border: 1px solid #a07730; padding: 10px 8px; font-size: 11px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }',
     'tbody td { border: 1px solid #ddd; padding: 8px; text-align: center; color: #333 !important; }',
     'tbody tr:nth-child(even) { background: #fafafa; }',
     'tbody tr:last-child { font-weight: 700; background: #fff8e1 !important; }',
-    'div[style*="background:var(--bg-secondary)"], div[style*="background:#1a1a1a"], div[style*="background: var(--bg-secondary)"] { background: #fff !important; border: 1px solid #e0c878 !important; border-radius: 10px; padding: 16px; margin-bottom: 16px; }',
+    'div[style*="background:var(--bg-secondary)"], div[style*="background:#1a1a1a"], div[style*="background: var(--bg-secondary)"] { background: #fff !important; border: 1px solid #e0c878 !important; border-radius: 10px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; }',
     'div[style*="display:grid"], div[style*="display: grid"] { display: grid !important; gap: 12px !important; }',
     'div[style*="grid-template-columns: repeat(4"], div[style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(4, 1fr) !important; }',
     'div[style*="grid-template-columns: repeat(2"], div[style*="grid-template-columns:repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }',
@@ -867,7 +867,7 @@ function printLiveReport() {
     'td[style*="color:#f44336"], td[style*="color: #f44336"] { color: #c62828 !important; }',
     'td[style*="color:var(--gold-primary)"] { color: #b8860b !important; }',
     'div[style*="background:rgba(212,175,55"] { background: #fff8e1 !important; }',
-    '@media print { body { padding: 20px 15px; } @page { margin: 15mm; } }'
+    '@media print { body { padding: 20px 15px; } @page { margin: 15mm; } .print-section { page-break-inside: avoid; } table { page-break-inside: avoid; } h3 { page-break-after: avoid; } }'
   ].join('\n');
 
   var printWin = window.open('', '_blank');
