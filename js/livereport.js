@@ -831,38 +831,52 @@ async function loadSalesInfoBar() {
 function printLiveReport() {
   var dateFrom = document.getElementById('lrDateFrom').value || '';
   var dateTo = document.getElementById('lrDateTo').value || '';
-  var title = 'KPV GOLD - Live Report';
-  if (dateFrom && dateTo) title += ' (' + dateFrom + ' to ' + dateTo + ')';
-  else if (dateFrom) title += ' (' + dateFrom + ')';
 
   var sections = ['lrSummaryBoxes', 'lrSalesPayments', 'lrBuybackPayments', 'lrStockSummary', 'lrGoldTable'];
   var contentHtml = '';
   sections.forEach(function(id) {
     var el = document.getElementById(id);
-    if (el && el.innerHTML.trim()) contentHtml += el.innerHTML;
+    if (el && el.innerHTML.trim()) contentHtml += '<div class="print-section">' + el.innerHTML + '</div>';
   });
 
+  var css = [
+    '* { box-sizing: border-box; margin: 0; padding: 0; }',
+    'body { font-family: "Segoe UI", Arial, sans-serif; padding: 40px 30px; background: #fff; color: #333; font-size: 13px; line-height: 1.5; }',
+    '.print-header { text-align: center; border-bottom: 3px solid #b8860b; padding-bottom: 20px; margin-bottom: 30px; }',
+    '.print-header h1 { color: #b8860b; font-size: 28px; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }',
+    '.print-header .subtitle { color: #666; font-size: 13px; }',
+    '.print-section { margin-bottom: 25px; }',
+    'h3 { color: #b8860b !important; font-size: 15px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e0c878; }',
+    'table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; }',
+    'thead th { background: #b8860b !important; color: #fff !important; border: 1px solid #a07730; padding: 10px 8px; font-size: 11px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }',
+    'tbody td { border: 1px solid #ddd; padding: 8px; text-align: center; color: #333 !important; }',
+    'tbody tr:nth-child(even) { background: #fafafa; }',
+    'tbody tr:last-child { font-weight: 700; background: #fff8e1 !important; }',
+    'div[style*="background:var(--bg-secondary)"], div[style*="background:#1a1a1a"], div[style*="background: var(--bg-secondary)"] { background: #fff !important; border: 1px solid #e0c878 !important; border-radius: 10px; padding: 16px; margin-bottom: 16px; }',
+    'div[style*="display:grid"], div[style*="display: grid"] { display: grid !important; gap: 12px !important; }',
+    'div[style*="grid-template-columns: repeat(4"], div[style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(4, 1fr) !important; }',
+    'div[style*="grid-template-columns: repeat(2"], div[style*="grid-template-columns:repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }',
+    'div[style*="grid-template-columns: 1fr 1fr"], div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }',
+    '.table-container { overflow: visible !important; margin: 0 !important; padding: 0 !important; }',
+    'p, span, div { color: #333 !important; }',
+    'span[style*="color:#4caf50"], span[style*="color: #4caf50"] { color: #2e7d32 !important; }',
+    'span[style*="color:#f44336"], span[style*="color: #f44336"] { color: #c62828 !important; }',
+    'span[style*="color:#2196f3"], span[style*="color: #2196f3"] { color: #1565c0 !important; }',
+    'span[style*="color:#ff9800"], span[style*="color: #ff9800"] { color: #e65100 !important; }',
+    'td[style*="color:#4caf50"], td[style*="color: #4caf50"] { color: #2e7d32 !important; }',
+    'td[style*="color:#f44336"], td[style*="color: #f44336"] { color: #c62828 !important; }',
+    'td[style*="color:var(--gold-primary)"] { color: #b8860b !important; }',
+    'div[style*="background:rgba(212,175,55"] { background: #fff8e1 !important; }',
+    '@media print { body { padding: 20px 15px; } @page { margin: 15mm; } }'
+  ].join('\n');
+
   var printWin = window.open('', '_blank');
-  printWin.document.write('<!DOCTYPE html><html><head><title>' + title + '</title>');
-  printWin.document.write('<style>');
-  printWin.document.write('body { font-family: Arial, sans-serif; padding: 30px; background: #fff; color: #000; }');
-  printWin.document.write('h1 { text-align: center; color: #b8860b; font-size: 24px; margin-bottom: 5px; }');
-  printWin.document.write('.print-date { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }');
-  printWin.document.write('table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
-  printWin.document.write('th { background: #f5f5f5; border: 1px solid #ddd; padding: 10px 8px; font-size: 12px; text-align: center; font-weight: 700; color: #333; }');
-  printWin.document.write('td { border: 1px solid #ddd; padding: 8px; font-size: 12px; text-align: center; }');
-  printWin.document.write('h3 { color: #b8860b; font-size: 16px; margin: 20px 0 10px; }');
-  printWin.document.write('.stat-card, div[style*="background:var(--bg-secondary)"], div[style*="background:#1a1a1a"] { background: #fff !important; border: 1px solid #ddd !important; padding: 15px; margin-bottom: 15px; border-radius: 8px; }');
-  printWin.document.write('div[style*="display:grid"], div[style*="display: grid"] { display: grid; gap: 15px; }');
-  printWin.document.write('div[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(4, 1fr) !important; }');
-  printWin.document.write('div[style*="grid-template-columns: repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }');
-  printWin.document.write('div[style*="grid-template-columns:repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }');
-  printWin.document.write('* { color: #000 !important; }');
-  printWin.document.write('h3 { color: #b8860b !important; }');
-  printWin.document.write('@media print { body { padding: 15px; } }');
-  printWin.document.write('</style></head><body>');
-  printWin.document.write('<h1>KPV GOLD Manager</h1>');
-  printWin.document.write('<div class="print-date">Live Report: ' + (dateFrom || 'N/A') + ' to ' + (dateTo || 'N/A') + ' | Printed: ' + new Date().toLocaleString() + '</div>');
+  printWin.document.write('<!DOCTYPE html><html><head><title>KPV GOLD - Report</title>');
+  printWin.document.write('<style>' + css + '</style></head><body>');
+  printWin.document.write('<div class="print-header">');
+  printWin.document.write('<h1>KPV GOLD</h1>');
+  printWin.document.write('<div class="subtitle">Live Report: ' + (dateFrom || '-') + ' to ' + (dateTo || '-') + ' | Printed: ' + new Date().toLocaleString() + '</div>');
+  printWin.document.write('</div>');
   printWin.document.write(contentHtml);
   printWin.document.write('</body></html>');
   printWin.document.close();
