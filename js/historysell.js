@@ -18,10 +18,10 @@ async function loadHistorySell() {
     toEl.onchange = function() { historySellDateTo = this.value; loadHistorySell(); };
 
     var results = await Promise.all([
-      fetchSheetData('Sells!A:L'),
-      fetchSheetData('Tradeins!A:S'),
-      fetchSheetData('Exchanges!A:T'),
-      fetchSheetData('Withdraws!A:L')
+      fetchSheetData('Sells!A:N'),
+      fetchSheetData('Tradeins!A:T'),
+      fetchSheetData('Exchanges!A:V'),
+      fetchSheetData('Withdraws!A:M')
     ]);
 
     var all = [];
@@ -37,7 +37,8 @@ async function loadHistorySell() {
         total: parseFloat(r[3]) || 0,
         paid: sPaid > 0 ? formatNumber(sPaid) + ' ' + (r[6] || 'LAK') : '-',
         change: sChange > 0 ? formatNumber(sChange) + ' LAK' : '-',
-        status: r[10] || '', sale: r[11] || '', date: r[9], raw: r
+        status: r[10] || '', sale: r[11] || '', date: r[9], raw: r,
+        billId: r[13] || '-'
       });
     });
 
@@ -56,7 +57,8 @@ async function loadHistorySell() {
         total: parseFloat(r[6]) || 0,
         paid: tPaid > 0 ? formatNumber(tPaid) + ' ' + (r[8] || 'LAK') : '-',
         change: tChange > 0 ? formatNumber(tChange) + ' LAK' : '-',
-        status: r[12] || '', sale: r[13] || '', date: r[11], raw: r
+        status: r[12] || '', sale: r[13] || '', date: r[11], raw: r,
+        billId: r[19] || '-'
       });
     });
 
@@ -80,7 +82,8 @@ async function loadHistorySell() {
         total: parseFloat(r[6]) || 0,
         paid: ePaid > 0 ? formatNumber(ePaid) + ' ' + (r[8] || 'LAK') : '-',
         change: eChange > 0 ? formatNumber(eChange) + ' LAK' : '-',
-        status: r[12] || '', sale: r[13] || '', date: r[11], raw: r
+        status: r[12] || '', sale: r[13] || '', date: r[11], raw: r,
+        billId: r[21] || '-'
       });
     });
 
@@ -94,7 +97,8 @@ async function loadHistorySell() {
         total: parseFloat(r[4]) || 0,
         paid: wPaid > 0 ? formatNumber(wPaid) + ' LAK' : '-',
         change: '-',
-        status: r[7] || '', sale: r[8] || '', date: r[6], raw: r
+        status: r[7] || '', sale: r[8] || '', date: r[6], raw: r,
+        billId: r[12] || '-'
       });
     });
 
@@ -113,7 +117,7 @@ async function loadHistorySell() {
           var detailArr = [];
           if (r.type === 'WITHDRAW') {
             detailArr = [
-              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Type', r.type], ['Transaction ID', r.id], ['BILL ID', r.billId || '-'], ['Phone', r.phone],
               ['Withdraw Code', (r.raw && r.raw[11]) || '-'],
               ['Items', r.newGold],
               ['Premium', r.premium],
@@ -124,7 +128,7 @@ async function loadHistorySell() {
             ];
           } else if (r.type === 'SELL') {
             detailArr = [
-              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Type', r.type], ['Transaction ID', r.id], ['BILL ID', r.billId || '-'], ['Phone', r.phone],
               ['Items', r.newGold],
               ['Premium', r.premium],
               ['Total', formatNumber(r.total) + ' LAK'],
@@ -134,7 +138,7 @@ async function loadHistorySell() {
           } else if (r.type === 'TRADE-IN') {
             var pureOld = r.raw && r.raw[16] ? formatItemsForTable(subtractItems(r.oldGoldRaw, r.raw[16])) : r.oldGold;
             detailArr = [
-              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Type', r.type], ['Transaction ID', r.id], ['BILL ID', r.billId || '-'], ['Phone', r.phone],
               ['F.O.C รหัสบิลเก่า', r.focBillRef || '-'], ['F.O.C (Old Gold)', r.focGold || '-'], ['Old Gold', pureOld], ['New Gold', r.newGold],
               ['Difference', r.difference],
               ['Premium', r.premium], ['FOC Premium หัก', r.focPremDeduct || '-'],
@@ -147,7 +151,7 @@ async function loadHistorySell() {
             if (r.switchOldRaw) pureExOld = subtractItems(pureExOld, r.switchOldRaw);
             if (r.freeExOldRaw) pureExOld = subtractItems(pureExOld, r.freeExOldRaw);
             detailArr = [
-              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Type', r.type], ['Transaction ID', r.id], ['BILL ID', r.billId || '-'], ['Phone', r.phone],
               ['New Gold', r.newGold], ['Old Gold (Exchange)', formatItemsForTable(pureExOld)],
               ['Exchange Fee', r.exchangeFee],
               ['Switch Old Gold', r.switchOldGold || '-'], ['Switch Fee', r.switchFee],
@@ -159,7 +163,7 @@ async function loadHistorySell() {
             ];
           } else {
             detailArr = [
-              ['Type', r.type], ['Transaction ID', r.id], ['Phone', r.phone],
+              ['Type', r.type], ['Transaction ID', r.id], ['BILL ID', r.billId || '-'], ['Phone', r.phone],
               ['Old Gold', r.oldGold], ['New Gold', r.newGold],
               ['Difference', r.difference], ['Exchange Fee', r.exchangeFee],
               ['Switch Fee', r.switchFee],
