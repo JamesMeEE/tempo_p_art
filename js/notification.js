@@ -21,6 +21,7 @@ async function pollAll() {
   if (typeof checkPendingClose === 'function') checkPendingClose();
   if (typeof loadPendingTransferCount === 'function') loadPendingTransferCount();
   if (typeof loadSalesInfoBar === 'function') loadSalesInfoBar();
+  if (typeof checkSession === 'function') checkSession();
 }
 
 async function pollNotifications() {

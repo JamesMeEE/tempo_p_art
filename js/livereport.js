@@ -155,6 +155,7 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
   var weights = { 'G01': 150, 'G02': 75, 'G03': 30, 'G04': 15, 'G05': 7.5, 'G06': 3.75, 'G07': 1 };
   var products = ['G01','G02','G03','G04','G05','G06','G07'];
   window._lrSalesGold = {};
+  window._lrSalesCash = {};
 
   for (var u = 0; u < users.length; u++) {
     var name = users[u];
@@ -315,6 +316,7 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
       }
     }
     window._lrSalesGold[name] = goldQty;
+    window._lrSalesCash[name] = { LAK: cashLAK, THB: cashTHB, USD: cashUSD };
 
     html += '<div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:12px;">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:' + (isOpen || shiftClosed ? '10' : '0') + 'px;">';
@@ -751,14 +753,27 @@ function showLROldGoldModal(salesName) {
   var content = document.getElementById('lrOldGoldContent');
   if (!modal || !content) return;
 
-  title.textContent = '◀ ทองเก่าที่ได้รับ — ' + salesName;
+  title.textContent = 'รายละเอียด — ' + salesName;
+
+  var cashData = (window._lrSalesCash && window._lrSalesCash[salesName]) || { LAK: 0, THB: 0, USD: 0 };
+  var html = '<div style="margin-bottom:16px;padding:14px;background:rgba(76,175,80,0.08);border-radius:8px;border:1px solid rgba(76,175,80,0.2);">';
+  html += '<div style="font-size:13px;color:#4caf50;font-weight:700;margin-bottom:10px;">💵 สรุปเงินทั้งหมด</div>';
+  html += '<table style="width:100%;border-collapse:collapse;">';
+  var thC = 'background:#2d2d2d;color:#4caf50;border:1px solid rgba(76,175,80,0.3);padding:8px 12px;font-size:12px;font-weight:700;';
+  html += '<thead><tr><th style="' + thC + 'text-align:left;">ประเภท</th><th style="' + thC + 'text-align:center;">LAK</th><th style="' + thC + 'text-align:center;">THB</th><th style="' + thC + 'text-align:center;">USD</th></tr></thead><tbody>';
+  html += '<tr><td style="padding:8px 12px;font-size:13px;font-weight:600;">💵 Cash</td>';
+  html += '<td style="padding:8px 12px;text-align:center;font-size:13px;color:#4caf50;font-weight:600;">' + formatNumber(cashData.LAK) + '</td>';
+  html += '<td style="padding:8px 12px;text-align:center;font-size:13px;color:#2196f3;font-weight:600;">' + formatCurrency(cashData.THB, 'THB') + '</td>';
+  html += '<td style="padding:8px 12px;text-align:center;font-size:13px;color:#ff9800;font-weight:600;">' + formatCurrency(cashData.USD, 'USD') + '</td>';
+  html += '</tr></tbody></table></div>';
 
   var goldQty = (window._lrSalesGold && window._lrSalesGold[salesName]) || {};
   var products = ['G01','G02','G03','G04','G05','G06','G07'];
   var pNames = {'G01':'10 บาท','G02':'5 บาท','G03':'2 บาท','G04':'1 บาท','G05':'2 สลึง','G06':'1 สลึง','G07':'1 กรัม'};
 
+  html += '<div style="font-size:13px;color:var(--gold-primary);font-weight:700;margin-bottom:10px;">◀ ทองเก่าที่ได้รับ</div>';
   var thS = 'background:#2d2d2d;color:#d4af37;border:1px solid rgba(212,175,55,0.3);padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;';
-  var html = '<table style="width:100%;border-collapse:collapse;">';
+  html += '<table style="width:100%;border-collapse:collapse;">';
   html += '<thead><tr><th style="' + thS + 'text-align:left;">Product</th><th style="' + thS + 'text-align:center;">Unit</th></tr></thead><tbody>';
   var totalQty = 0;
   products.forEach(function(p) {
@@ -811,4 +826,45 @@ async function loadSalesInfoBar() {
   } catch(e) {
     console.error('loadSalesInfoBar error:', e);
   }
+}
+
+function printLiveReport() {
+  var dateFrom = document.getElementById('lrDateFrom').value || '';
+  var dateTo = document.getElementById('lrDateTo').value || '';
+  var title = 'KPV GOLD - Live Report';
+  if (dateFrom && dateTo) title += ' (' + dateFrom + ' to ' + dateTo + ')';
+  else if (dateFrom) title += ' (' + dateFrom + ')';
+
+  var sections = ['lrSummaryBoxes', 'lrSalesPayments', 'lrBuybackPayments', 'lrStockSummary', 'lrGoldTable'];
+  var contentHtml = '';
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.innerHTML.trim()) contentHtml += el.innerHTML;
+  });
+
+  var printWin = window.open('', '_blank');
+  printWin.document.write('<!DOCTYPE html><html><head><title>' + title + '</title>');
+  printWin.document.write('<style>');
+  printWin.document.write('body { font-family: Arial, sans-serif; padding: 30px; background: #fff; color: #000; }');
+  printWin.document.write('h1 { text-align: center; color: #b8860b; font-size: 24px; margin-bottom: 5px; }');
+  printWin.document.write('.print-date { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }');
+  printWin.document.write('table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
+  printWin.document.write('th { background: #f5f5f5; border: 1px solid #ddd; padding: 10px 8px; font-size: 12px; text-align: center; font-weight: 700; color: #333; }');
+  printWin.document.write('td { border: 1px solid #ddd; padding: 8px; font-size: 12px; text-align: center; }');
+  printWin.document.write('h3 { color: #b8860b; font-size: 16px; margin: 20px 0 10px; }');
+  printWin.document.write('.stat-card, div[style*="background:var(--bg-secondary)"], div[style*="background:#1a1a1a"] { background: #fff !important; border: 1px solid #ddd !important; padding: 15px; margin-bottom: 15px; border-radius: 8px; }');
+  printWin.document.write('div[style*="display:grid"], div[style*="display: grid"] { display: grid; gap: 15px; }');
+  printWin.document.write('div[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(4, 1fr) !important; }');
+  printWin.document.write('div[style*="grid-template-columns: repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }');
+  printWin.document.write('div[style*="grid-template-columns:repeat(2"] { grid-template-columns: repeat(2, 1fr) !important; }');
+  printWin.document.write('* { color: #000 !important; }');
+  printWin.document.write('h3 { color: #b8860b !important; }');
+  printWin.document.write('@media print { body { padding: 15px; } }');
+  printWin.document.write('</style></head><body>');
+  printWin.document.write('<h1>KPV GOLD Manager</h1>');
+  printWin.document.write('<div class="print-date">Live Report: ' + (dateFrom || 'N/A') + ' to ' + (dateTo || 'N/A') + ' | Printed: ' + new Date().toLocaleString() + '</div>');
+  printWin.document.write(contentHtml);
+  printWin.document.write('</body></html>');
+  printWin.document.close();
+  setTimeout(function() { printWin.print(); }, 500);
 }
