@@ -867,7 +867,7 @@ function printLiveReport() {
     'td[style*="color:#f44336"], td[style*="color: #f44336"] { color: #c62828 !important; }',
     'td[style*="color:var(--gold-primary)"] { color: #b8860b !important; }',
     'div[style*="background:rgba(212,175,55"] { background: #fff8e1 !important; }',
-    '@media print { @page { margin: 15mm; } body { padding: 10px 20px; } .print-section { page-break-inside: avoid; } table { page-break-inside: avoid; } h3 { page-break-after: avoid; } }'
+    '@media print { @page { margin: 20mm 15mm; } body { padding: 5px 15px; } .print-section { page-break-inside: avoid; margin-top: 10px; } table { page-break-inside: avoid; } h3 { page-break-after: avoid; } }'
   ].join('\n');
 
   var printWin = window.open('', '_blank');
