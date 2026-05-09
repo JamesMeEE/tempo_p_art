@@ -325,6 +325,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>PHONE NO.</th>
               <th>Withdraw Code</th>
@@ -338,7 +339,7 @@
           </thead>
           <tbody id="withdrawTable">
             <tr>
-              <td colspan="10" style="text-align: center; padding: 40px;">Loading...</td>
+              <td colspan="11" style="text-align: center; padding: 40px;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -361,6 +362,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>PHONE NO.</th>
               <th>Items</th>
@@ -373,7 +375,7 @@
           </thead>
           <tbody id="sellTable">
             <tr>
-              <td colspan="9" style="text-align: center; padding: 40px;">Loading...</td>
+              <td colspan="10" style="text-align: center; padding: 40px;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -396,6 +398,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>PHONE NO.</th>
               <th>Old Gold</th>
@@ -410,7 +413,7 @@
           </thead>
           <tbody id="tradeinTable">
             <tr>
-              <td colspan="11" style="text-align: center; padding: 40px;">Loading...</td>
+              <td colspan="12" style="text-align: center; padding: 40px;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -433,6 +436,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>PHONE NO.</th>
               <th>Old Gold</th>
@@ -448,7 +452,7 @@
           </thead>
           <tbody id="exchangeTable">
             <tr>
-              <td colspan="12" style="text-align: center; padding: 40px;">Loading...</td>
+              <td colspan="13" style="text-align: center; padding: 40px;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -470,6 +474,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>Phone</th>
               <th>Type</th>
@@ -486,7 +491,7 @@
             </tr>
           </thead>
           <tbody id="historySellTable">
-            <tr><td colspan="14" style="text-align: center; padding: 40px;">Loading...</td></tr>
+            <tr><td colspan="15" style="text-align: center; padding: 40px;">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -508,6 +513,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
+              <th>BILL ID</th>
               <th>Date</th>
               <th>PHONE NO.</th>
               <th>Items</th>
@@ -523,7 +529,7 @@
           </thead>
           <tbody id="buybackTable">
             <tr>
-              <td colspan="11" style="text-align: center; padding: 40px;">Loading...</td>
+              <td colspan="12" style="text-align: center; padding: 40px;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -2265,7 +2271,7 @@
 
 <script>document.querySelectorAll('input').forEach(function(el){el.setAttribute('autocomplete','off');});</script>
   <div id="lrOldGoldModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
-    <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto;">
+    <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:24px;max-width:600px;width:95%;max-height:80vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h3 id="lrOldGoldTitle" style="color:var(--gold-primary);font-size:16px;">◀ ทองเก่าที่ได้รับ</h3>
         <button onclick="document.getElementById('lrOldGoldModal').style.display='none'" style="background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;">✕</button>
