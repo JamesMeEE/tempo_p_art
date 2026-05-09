@@ -816,10 +816,10 @@ async function loadSalesInfoBar() {
 
     document.getElementById('siSellPrice').textContent = formatNumber(sellPrice);
     document.getElementById('siBuybackPrice').textContent = formatNumber(buybackPrice);
-    document.getElementById('siThbSell').textContent = formatNumber(currentExchangeRates.THB_Sell || 0);
-    document.getElementById('siUsdSell').textContent = formatNumber(currentExchangeRates.USD_Sell || 0);
-    document.getElementById('siThbBuy').textContent = formatNumber(currentExchangeRates.THB_Buy || 0);
-    document.getElementById('siUsdBuy').textContent = formatNumber(currentExchangeRates.USD_Buy || 0);
+    document.getElementById('siThbSell').textContent = formatCurrency(currentExchangeRates.THB_Sell || 0,'THB');
+    document.getElementById('siUsdSell').textContent = formatCurrency(currentExchangeRates.USD_Sell || 0,'USD');
+    document.getElementById('siThbBuy').textContent = formatCurrency(currentExchangeRates.THB_Buy || 0,'THB');
+    document.getElementById('siUsdBuy').textContent = formatCurrency(currentExchangeRates.USD_Buy || 0,'USD');
 
     if (spinner) spinner.style.display = 'none';
     if (content) content.style.display = 'block';
