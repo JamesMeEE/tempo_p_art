@@ -841,11 +841,12 @@ function printLiveReport() {
 
   var css = [
     '* { box-sizing: border-box; margin: 0; padding: 0; }',
-    'body { font-family: "Segoe UI", Arial, sans-serif; padding: 40px 30px; background: #fff; color: #333; font-size: 13px; line-height: 1.5; }',
+    'body { font-family: "Segoe UI", Arial, sans-serif; padding: 30px; background: #fff; color: #333; font-size: 13px; line-height: 1.5; }',
     '.print-header { text-align: center; border-bottom: 3px solid #b8860b; padding-bottom: 20px; margin-bottom: 30px; }',
     '.print-header h1 { color: #b8860b; font-size: 28px; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }',
     '.print-header .subtitle { color: #666; font-size: 13px; }',
-    '.print-section { margin-bottom: 25px; page-break-inside: avoid; }',
+    '.print-wrapper { max-width: 170mm; margin: 0 auto; }',
+    '.print-section { margin-bottom: 25px; page-break-inside: avoid; padding-top: 5mm; }',
     'h3 { color: #b8860b !important; font-size: 15px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e0c878; }',
     'table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; page-break-inside: avoid; }',
     'thead th { background: #b8860b !important; color: #fff !important; border: 1px solid #a07730; padding: 10px 8px; font-size: 11px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }',
@@ -867,17 +868,19 @@ function printLiveReport() {
     'td[style*="color:#f44336"], td[style*="color: #f44336"] { color: #c62828 !important; }',
     'td[style*="color:var(--gold-primary)"] { color: #b8860b !important; }',
     'div[style*="background:rgba(212,175,55"] { background: #fff8e1 !important; }',
-    '@media print { @page { margin: 20mm 15mm; } body { padding: 5px 15px; } .print-section { page-break-inside: avoid; margin-top: 10px; } table { page-break-inside: avoid; } h3 { page-break-after: avoid; } }'
+    '@media print { @page { margin: 10mm; } .print-section { page-break-inside: avoid; } table { page-break-inside: avoid; } h3 { page-break-after: avoid; } .print-tip { display: none !important; } }'
   ].join('\n');
 
   var printWin = window.open('', '_blank');
   printWin.document.write('<!DOCTYPE html><html><head><title>KPV GOLD - Report</title>');
   printWin.document.write('<style>' + css + '</style></head><body>');
+  printWin.document.write('<div class="print-wrapper">');
   printWin.document.write('<div class="print-header">');
   printWin.document.write('<h1>KPV GOLD</h1>');
   printWin.document.write('<div class="subtitle">Live Report: ' + (dateFrom || '-') + ' to ' + (dateTo || '-') + ' | Printed: ' + new Date().toLocaleString() + '</div>');
   printWin.document.write('</div>');
   printWin.document.write(contentHtml);
+  printWin.document.write('</div>');
   printWin.document.write('</body></html>');
   printWin.document.close();
   setTimeout(function() { printWin.print(); }, 500);
