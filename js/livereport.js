@@ -275,9 +275,15 @@ function renderSalesStatus(users, salesUserData, closeData, logCashbankData, sel
           }
         } catch(e) {}
       }
+      var lcFrom = dateFrom ? new Date(dateFrom) : null;
+      var lcTo = dateTo ? new Date(dateTo) : null;
+      if (lcTo) lcTo.setHours(23, 59, 59, 999);
       for (var lc = 1; lc < logCashbankData.length; lc++) {
         var lcCreator = String(logCashbankData[lc][8] || '').trim();
         if (lcCreator !== name) continue;
+        var lcDateVal = lrParseDate(logCashbankData[lc][7]);
+        if (lcFrom && lcDateVal < lcFrom) continue;
+        if (lcTo && lcDateVal > lcTo) continue;
         var lcMethod = String(logCashbankData[lc][4] || '').trim();
         var lcBank = String(logCashbankData[lc][5] || '').trim();
         var lcCur = String(logCashbankData[lc][3] || '').trim();
