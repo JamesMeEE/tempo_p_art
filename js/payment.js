@@ -277,6 +277,11 @@ function updatePaymentSummary() {
   }
 }
 
+function endSubmit() {
+  _isSubmitting = false;
+  hideLoading();
+}
+
 async function confirmMultiPayment() {
   if (_isSubmitting) return;
   if (!currentPaymentData) return;
