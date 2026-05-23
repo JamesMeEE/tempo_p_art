@@ -19,7 +19,7 @@ async function loadStockOld() {
 
   var _tblSpinnerOld = '<div style="display:inline-block;width:20px;height:20px;border:3px solid var(--border-color);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div>';
   document.getElementById('stockOldSummaryTable').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">' + _tblSpinnerOld + '</td></tr>';
-  document.getElementById('stockOldMovementTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;">' + _tblSpinnerOld + '</td></tr>';
+  document.getElementById('stockOldMovementTable').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;">' + _tblSpinnerOld + '</td></tr>';
   document.getElementById('stockOldGoldG').textContent = '...';
   document.getElementById('stockOldCostValue').textContent = '...';
 
@@ -107,7 +107,7 @@ function renderStockOldMovements(moves, prevW, prevC, showRunning) {
     var gOut = m.dir === 'OUT' ? m.goldG : 0;
     var pIn = m.dir === 'IN' ? m.price : 0;
     var pOut = m.dir === 'OUT' ? m.price : 0;
-    return { id: m.id, type: m.type, goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut };
+    return { id: m.id, type: m.type, date: typeof formatDateTime === 'function' ? formatDateTime(m.date) : (m.date || ''), goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut };
   });
 
   var w = prevW, c = prevC;
@@ -137,10 +137,11 @@ function renderStockOldMovements(moves, prevW, prevC, showRunning) {
   }
 
   if (todayMovements.length === 0 && rows === '') {
-    movBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;">ไม่มีรายการวันนี้</td></tr>';
+    movBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">ไม่มีรายการวันนี้</td></tr>';
   } else {
     rows += todayMovements.map(function(m) { return '<tr>' +
       '<td>' + m.id + '</td>' +
+      '<td style="font-size:11px;white-space:nowrap;">' + (m.date || '') + '</td>' +
       '<td><span class="status-badge">' + m.type + '</span></td>' +
       '<td style="color:#4caf50;">' + (m.goldIn > 0 ? formatWeight(m.goldIn) : '-') + '</td>' +
       '<td style="color:#f44336;">' + (m.goldOut > 0 ? formatWeight(m.goldOut) : '-') + '</td>' +
