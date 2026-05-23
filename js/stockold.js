@@ -129,7 +129,7 @@ function renderStockOldMovements(moves, prevW, prevC, showRunning) {
 
   if (prevW !== 0 || prevC !== 0) {
     rows += '<tr style="background:rgba(212,175,55,0.06);">' +
-      '<td colspan="4" style="font-style:italic;color:var(--gold-primary);">📌 ยกมา</td>' +
+      '<td colspan="5" style="font-style:italic;color:var(--gold-primary);">📌 ยกมา</td>' +
       '<td style="font-weight:bold;">' + formatWeight(prevW) + '</td>' +
       '<td colspan="2"></td>' +
       '<td style="font-weight:bold;">' + formatNumber(Math.round(prevC)) + '</td>' +
@@ -369,7 +369,7 @@ function showBillModal(id, type, contentHtml) {
 function renderFilteredMoves(tableId, moves, from, to) {
   var movBody = document.getElementById(tableId);
   if (moves.length === 0) {
-    movBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;">ไม่มีรายการในช่วง ' + from + ' ถึง ' + to + '</td></tr>';
+    movBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">ไม่มีรายการในช่วง ' + from + ' ถึง ' + to + '</td></tr>';
     return;
   }
   var rows = '';
@@ -383,6 +383,7 @@ function renderFilteredMoves(tableId, moves, from, to) {
     c += pIn - pOut;
     rows += '<tr>' +
       '<td>' + m.id + '</td>' +
+      '<td style="font-size:11px;white-space:nowrap;">' + (m.date || '') + '</td>' +
       '<td><span class="status-badge">' + m.type + '</span></td>' +
       '<td style="color:#4caf50;">' + (gIn > 0 ? formatWeight(gIn) : '-') + '</td>' +
       '<td style="color:#f44336;">' + (gOut > 0 ? formatWeight(gOut) : '-') + '</td>' +
@@ -394,7 +395,7 @@ function renderFilteredMoves(tableId, moves, from, to) {
       '</tr>';
   });
   rows += '<tr style="background:rgba(212,175,55,0.1);font-weight:bold;">' +
-    '<td colspan="4" style="text-align:right;">รวมทั้งหมด</td>' +
+    '<td colspan="5" style="text-align:right;">รวมทั้งหมด</td>' +
     '<td>' + formatWeight(w) + '</td><td colspan="2"></td>' +
     '<td>' + formatNumber(Math.round(c)) + '</td><td></td></tr>';
   movBody.innerHTML = rows;
