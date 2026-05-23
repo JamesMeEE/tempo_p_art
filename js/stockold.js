@@ -107,7 +107,7 @@ function renderStockOldMovements(moves, prevW, prevC, showRunning) {
     var gOut = m.dir === 'OUT' ? m.goldG : 0;
     var pIn = m.dir === 'IN' ? m.price : 0;
     var pOut = m.dir === 'OUT' ? m.price : 0;
-    return { id: m.id, type: m.type, date: typeof formatDateTime === 'function' ? formatDateTime(m.date) : (m.date || ''), goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut };
+    return { id: m.id, type: m.type, date: m.date || '', goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut };
   });
 
   var w = prevW, c = prevC;

@@ -106,7 +106,7 @@ function renderStockNewMovements(moves, prevW, prevC) {
     w += gIn - gOut;
     c += pIn - pOut;
     if (m.type === 'TRANSFER' || m.type === 'STOCK-IN') {
-      todayMovements.push({ id: m.id, type: m.type, date: typeof formatDateTime === 'function' ? formatDateTime(m.date) : (m.date || ''), goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut, w: w, c: c });
+      todayMovements.push({ id: m.id, type: m.type, date: m.date || '', goldIn: gIn, goldOut: gOut, priceIn: pIn, priceOut: pOut, w: w, c: c });
     }
   });
 
