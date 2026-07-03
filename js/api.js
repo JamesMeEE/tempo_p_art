@@ -3,11 +3,11 @@ var _cacheTTL = 60000;
 
 var ALL_RANGES = [
   '_database!A1:M100',
-  'Sells!A:M',
-  'Tradeins!A:O',
-  'Exchanges!A:T',
-  'Buybacks!A:L',
-  'Withdraws!A:L',
+  'Sells!A:N',
+  'Tradeins!A:T',
+  'Exchanges!A:V',
+  'Buybacks!A:M',
+  'Withdraws!A:M',
   'CashBank!A:I',
   'Diff!A:J',
   'Close!A:K',
@@ -62,8 +62,12 @@ function invalidateCache() {
 }
 
 async function callAppsScript(action, params = {}) {
-  if (action !== 'BATCH_READ' && action !== 'READ_SHEET' && action !== 'GET_WAC' && action !== 'GET_LIVE_REPORT' && action !== 'GET_STOCK_MOVES' && action !== 'GET_STOCK_MOVES_RANGE' && action !== 'GET_PENDING_TRANSFERS' && action !== 'GET_TODAY_DIFF_TOTAL') {
+  var isReadAction = (action === 'BATCH_READ' || action === 'READ_SHEET' || action === 'GET_WAC' || action === 'GET_LIVE_REPORT' || action === 'GET_STOCK_MOVES' || action === 'GET_STOCK_MOVES_RANGE' || action === 'GET_PENDING_TRANSFERS' || action === 'GET_TODAY_DIFF_TOTAL');
+  if (!isReadAction) {
     invalidateCache();
+    if (!params.reqId) {
+      params.reqId = Date.now().toString(36) + Math.random().toString(36).substr(2, 10);
+    }
   }
   const queryParams = new URLSearchParams({
     action,
